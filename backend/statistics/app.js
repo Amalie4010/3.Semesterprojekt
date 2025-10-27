@@ -8,7 +8,7 @@ app.use(express.urlencoded({extended: true}));
 const PORT = process.env.PORT || 3000;
 
 //Use routes
-app.use("/api/statistics/order", routes);
+app.use("/api/statistics", routes);
 
 
 //Listening
