@@ -11,7 +11,7 @@ class OrderController extends Controller
     // Post order to statistics microservice
     public function postOrder($order)
     {
-        Http::post('/api/statistic/order', [
+        Http::post('http://127.0.0.1:8080/api/statistics/order', [
             'beer_type' => $order->beer_type,
             'quantity' => $order->quantity,
             'createdAt' => $order->created_at,

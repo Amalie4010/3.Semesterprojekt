@@ -15,5 +15,4 @@ router.post("/communincation", sendInstructions);
 //Get information of earlier events from database
 router.get("/db", receiveDatabaseInformation);
 
-
 router.post("/order", receiveOrder);
