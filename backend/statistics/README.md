@@ -1,1 +1,0 @@
-When using the statistics service it is recommended using the API
