@@ -1,0 +1,23 @@
+{
+  "name": "statistics",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Amalie4010/3.Semesterprojekt.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Amalie4010/3.Semesterprojekt/issues"
+  },
+  "homepage": "https://github.com/Amalie4010/3.Semesterprojekt#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
