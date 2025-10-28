@@ -1,12 +1,23 @@
-﻿using Opc.UaFx.Client;
+﻿using communication.Models;
+using Opc.UaFx.Client;
 using System.Diagnostics;
 namespace communication.Communication
 {
     public class Machine
     {
         private static Machine? instance;
-        //private string opcUrl = "opc.tcp://localhost:4840";
-        private Machine(){}
+        private Queue<Command> cmdQueue = new Queue<Command>();
+        private string opcUrl = "opc.tcp://localhost:4840";
+        private int timeoutMs = 5000;
+
+        private PowerState powerState = PowerState.Off;
+        private OpcClient client;
+        private Machine()
+        {
+            // Create client on URL
+            client = new OpcClient(opcUrl);
+            cmdQueue.Enqueue(new Command(BeerTypes.Pilsner, 100, 150));
+        }
         public static Machine GetInstance()
         {
             if (instance == null)
@@ -16,17 +27,59 @@ namespace communication.Communication
             return instance;
         }
 
-       
+        public async Task<PowerState> Power(PowerState powerState)
+        {
+            // Create new tcs
+            var tcs = new TaskCompletionSource<PowerState>();
+            
 
-        //public void testRead()
-        //{
-        //    string tagName = "ns=6;s=::Program:Cube.Command.Parameter[0].Value";
-        //    var client = new OpcClient(opcUrl);
-        //    client.Connect();
-        //    var r = client.ReadNode(tagName);
-        //    client.Disconnect();
-        //    Debug.WriteLine(r.ToString());
-        //}
+            // Create event handler
+            void Handler(object? sender, EventArgs? e)
+            {
+                tcs.SetResult(powerState);
+                this.powerState = powerState;
+            }
+
+            // Determine weather to wait for connected or disconnected
+            if (powerState == PowerState.On)
+            {
+                client.Connected += Handler;
+                client.Connect();
+            }
+            else
+            {
+                client.Disconnected += Handler;
+                client.Disconnect();
+            }
+
+            
+            // Wait for connection or timeout
+            var t = await Task.WhenAny(
+                tcs.Task,
+                Task.Delay(timeoutMs)
+                );
+
+            // Cleanup handler
+            if (powerState == PowerState.On)
+                client.Connected -= Handler;
+            else
+                client.Disconnected -= Handler;
+
+            // Handle timeout
+            if (t != tcs.Task)
+            {
+                throw new TimeoutException("Connection timed out");
+            }
+
+            // Return result
+            return await tcs.Task;            
+        }
+
+        public void testRead()
+        {
+            var r = client.ReadNode(NodeLib.StateCurrent);
+            Debug.WriteLine(r.ToString());
+        }
 
     }
 }
