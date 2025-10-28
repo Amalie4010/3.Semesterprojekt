@@ -1,6 +1,6 @@
 ﻿namespace communication.Communication
 {
-    public static class CrtllCommand
+    public static class CtrlCommand
     {
         public static readonly int Reset = 1;
         public static readonly int Start = 2;
