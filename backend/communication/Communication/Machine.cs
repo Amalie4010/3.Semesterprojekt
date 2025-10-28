@@ -9,9 +9,9 @@ namespace communication.Communication
         private Queue<Command> cmdQueue = new Queue<Command>();
         private string opcUrl = "opc.tcp://localhost:4840";
         private int timeoutMs = 5000;
+
         private PowerState powerState = PowerState.Off;
         private OpcClient client;
-        private List<OpcSubscription> subscriptions = new List<OpcSubscription>();
         private Machine()
         {
             // Create client on URL
@@ -25,20 +25,6 @@ namespace communication.Communication
                 instance = new Machine();
             }
             return instance;
-        }
-        private void SetupSubscribtions()
-        {
-            var stateCurrentSub = client.SubscribeDataChange(NodeLib.StateCurrent, HandleStateCurrentChange);
-            stateCurrentSub.PublishingInterval = 100;
-            subscriptions.Add(stateCurrentSub);
-            stateCurrentSub.ApplyChanges();
-        }
-        private void DestroySubscribtions()
-        {
-            foreach (var sub in subscriptions)
-            {
-                sub.Unsubscribe();
-            }
         }
 
         public async Task<PowerState> Power(PowerState powerState)
@@ -75,15 +61,9 @@ namespace communication.Communication
 
             // Cleanup handler
             if (powerState == PowerState.On)
-            {
                 client.Connected -= Handler;
-                SetupSubscribtions();
-            }
             else
-            {
                 client.Disconnected -= Handler;
-                //DestroySubscribtions();
-            }
 
             // Handle timeout
             if (t != tcs.Task)
@@ -95,21 +75,11 @@ namespace communication.Communication
             return await tcs.Task;            
         }
 
-        private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
+        public void testRead()
         {
-            Debug.WriteLine($"State changed: {e.Item.Value.ToString()}");
+            var r = client.ReadNode(NodeLib.StateCurrent);
+            Debug.WriteLine(r.ToString());
         }
-
-        //public void testRead()
-        //{
-        //    var r = client.ReadNode(NodeLib.StateCurrent);
-        //    Debug.WriteLine(r.ToString());
-        //}
-        //public void testWrite(float value)
-        //{
-        //    client.WriteNode(NodeLib.CtrlCmd, value);
-        //    client.WriteNode(NodeLib.CmdChangeRequest, true);
-        //}
 
     }
 }

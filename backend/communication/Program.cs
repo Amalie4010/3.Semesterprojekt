@@ -25,15 +25,8 @@
 
 //app.Run();
 using communication.Communication;
-using communication.Models;
-using System.Diagnostics;
 
-await Task.Delay(1000);
 var m = Machine.GetInstance();
-Debug.WriteLine($"System Status: {await m.Power(PowerState.On)}");
-await Task.Delay(1000);
-m.testWrite(CtrlCommand.Reset);
-await Task.Delay(1000);
-
-
-Debug.WriteLine($"System Status: {await m.Power(PowerState.Off)}");
+m.testRead();
+m.testWrite();
+m.testRead();
