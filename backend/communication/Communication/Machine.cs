@@ -9,9 +9,9 @@ namespace communication.Communication
         private Queue<Command> cmdQueue = new Queue<Command>();
         private string opcUrl = "opc.tcp://localhost:4840";
         private int timeoutMs = 5000;
-
         private PowerState powerState = PowerState.Off;
         private OpcClient client;
+        private List<OpcSubscription> subscriptions = new List<OpcSubscription>();
         private Machine()
         {
             // Create client on URL
@@ -26,12 +26,26 @@ namespace communication.Communication
             }
             return instance;
         }
+        private void SetupSubscribtions()
+        {
+            var stateCurrentSub = client.SubscribeDataChange(NodeLib.StateCurrent, HandleStateCurrentChange);
+            stateCurrentSub.PublishingInterval = 100;
+            subscriptions.Add(stateCurrentSub);
+            stateCurrentSub.ApplyChanges();
+        }
+        private void DestroySubscribtions()
+        {
+            foreach (var sub in subscriptions)
+            {
+                sub.Unsubscribe();
+            }
+        }
 
         public async Task<PowerState> Power(PowerState powerState)
         {
             // Create new tcs
             var tcs = new TaskCompletionSource<PowerState>();
-            
+
 
             // Create event handler
             void Handler(object? sender, EventArgs? e)
@@ -52,7 +66,7 @@ namespace communication.Communication
                 client.Disconnect();
             }
 
-            
+
             // Wait for connection or timeout
             var t = await Task.WhenAny(
                 tcs.Task,
@@ -61,9 +75,15 @@ namespace communication.Communication
 
             // Cleanup handler
             if (powerState == PowerState.On)
+            {
                 client.Connected -= Handler;
+                SetupSubscribtions();
+            }
             else
+            {
                 client.Disconnected -= Handler;
+                //DestroySubscribtions();
+            }
 
             // Handle timeout
             if (t != tcs.Task)
@@ -72,14 +92,24 @@ namespace communication.Communication
             }
 
             // Return result
-            return await tcs.Task;            
+            return await tcs.Task;
         }
 
-        public void testRead()
+        private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
-            var r = client.ReadNode(NodeLib.StateCurrent);
-            Debug.WriteLine(r.ToString());
+            Debug.WriteLine($"State changed: {e.Item.Value.ToString()}");
         }
+
+        //public void testRead()
+        //{
+        //    var r = client.ReadNode(NodeLib.StateCurrent);
+        //    Debug.WriteLine(r.ToString());
+        //}
+        //public void testWrite(float value)
+        //{
+        //    client.WriteNode(NodeLib.CtrlCmd, value);
+        //    client.WriteNode(NodeLib.CmdChangeRequest, true);
+        //}
 
     }
 }
