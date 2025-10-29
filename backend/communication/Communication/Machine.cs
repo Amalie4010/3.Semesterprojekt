@@ -2,8 +2,10 @@
 using communication.Models;
 using Opc.Ua.Export;
 using Opc.UaFx.Client;
+using Org.BouncyCastle.X509;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace communication.Communication
 {
@@ -12,7 +14,10 @@ namespace communication.Communication
         public readonly OpcClient client; // The acutal Opc Ua client
         private readonly BeerTypes beerType;
         private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore or Power method
-        private int currentState; // current PackML state
+        private CancellationTokenSource stateChangedCts = new();
+        private TaskCompletionSource queueChangedTcs = new();
+        private Queue<Command> cmdQueue = new();
+        private int currentState = 0; // current PackML state
 
         public bool Connected { get; private set; }
 
@@ -91,45 +96,96 @@ namespace communication.Communication
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
             int state = (int)e.Item.Value.Value;
+            // Keep old cts ref, for cancelling later, when state change is done
+            var oldCts = stateChangedCts;
+            stateChangedCts = new();
+
             currentState = state;
+            oldCts.Cancel(); // Cancel any waiters
+            
+            // Actually handle the new state
             switch (state)
             {
-                case MachineState.Idle:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Idle");
-                        break;
-                    }
-                case MachineState.Held:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Held");
-                        break;
-                    }
-                case MachineState.Completed:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Completed");
-                        break;
-                    }
-                case MachineState.Execute:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Execute");
-                        break;
-                    }
-                case MachineState.Stopped:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Stopped");
-                        break;
-                    }
-                case MachineState.Aborted:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to Aborted");
-                        break;
-                    }
-                default:
-                    {
-                        Debug.WriteLine($"State (Machine: {beerType}) changed to other");
-                        break;
-                    }
+            case MachineState.Idle:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Idle");
+                    _ = HandleIdle();
+                    break;
+                }
+            case MachineState.Held:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Held");
+                    break;
+                }
+            case MachineState.Completed:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Completed");
+                    NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
+                    NodeLib.CmdChangeRequest.Set(client, true);
+                    break;
+                }
+            case MachineState.Execute:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Execute");
+                    break;
+                }
+            case MachineState.Stopped:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Stopped");
+                    NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
+                    NodeLib.CmdChangeRequest.Set(client, true);
+                    break;
+                }
+            case MachineState.Aborted:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to Aborted");
+                    break;
+                }
+            default:
+                {
+                    Debug.WriteLine($"State (Machine: {beerType}) changed to other");
+                    break;
+                }
             }
+        }
+
+        public void EnqueueCommand(Command command)
+        {
+            cmdQueue.Enqueue(command);
+            // Keep old ref
+            var oldTcs = queueChangedTcs;
+            queueChangedTcs = new(); // Reset tcs
+            // alert old waiters AFTER making new
+            oldTcs.SetResult();
+        }
+        private async Task HandleIdle()
+        {
+            // Wait for queue to change when idle with no pending commands
+            // or for state to exit idle
+            while (cmdQueue.Count == 0)
+            {
+                try
+                {
+                    await Task.WhenAny(
+                        Task.Delay(Timeout.Infinite, stateChangedCts.Token),
+                        queueChangedTcs.Task
+                        );
+                } catch(TaskCanceledException)
+                {
+                    return;
+                }    
+            }
+
+            var command = cmdQueue.Dequeue();
+
+            // Load command variables into machine
+            NodeLib.ProductId.Set(client, (float)beerType);
+            NodeLib.ProductsAmount.Set(client, command.Amount);
+            NodeLib.MachSpeed.Set(client, command.Speed);
+
+            // Start production
+            NodeLib.CtrlCmd.Set(client, CtrlCommand.Start);
+            NodeLib.CmdChangeRequest.Set(client, true);
         }
     }
 }
