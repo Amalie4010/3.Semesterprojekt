@@ -61,13 +61,6 @@ namespace communication.Controllers
 
             return Ok();
         }
-        [HttpGet("command/{id}")]
-        public ActionResult<Command> GetCommand(Guid id)
-        {
-            Command command = new Command(BeerTypes.Pilsner, 1, 1);
-            command.Id = id;
-            return Ok(command);
-        }
         [HttpGet("command/current")]
         public ActionResult<Command> GetCommandCurrent()
         {
