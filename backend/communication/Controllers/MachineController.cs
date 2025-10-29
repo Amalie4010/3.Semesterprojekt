@@ -50,6 +50,15 @@ namespace communication.Controllers
         [HttpDelete("command/{id}")]
         public IActionResult DeleteCommand(Guid id)
         {
+            bool isQueued = Production.queuedCommandIds.Contains(id);
+            bool isCompleted = Production.completedCommandIds.Contains(id);
+            if (isCompleted)
+                return Conflict("The specified command has already been completed");
+            if (!isQueued)
+                return BadRequest($"A command with id = '{id}' doesn't exist");
+
+            _production.DeleteCommand(id);
+
             return Ok();
         }
         [HttpGet("command/{id}")]
