@@ -12,7 +12,8 @@ namespace communication.Communication
         public readonly OpcClient client; // The acutal Opc Ua client
         private readonly BeerTypes beerType;
         private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore or Power method
-        private int currentState; // current PackML state
+        private int currentState = 0; // current PackML state
+        private Queue<Command> cmdQueue = new();
 
         public bool Connected { get; private set; }
 
@@ -97,6 +98,7 @@ namespace communication.Communication
                 case MachineState.Idle:
                     {
                         Debug.WriteLine($"State (Machine: {beerType}) changed to Idle");
+                        HandleIdle();
                         break;
                     }
                 case MachineState.Held:
@@ -107,6 +109,8 @@ namespace communication.Communication
                 case MachineState.Completed:
                     {
                         Debug.WriteLine($"State (Machine: {beerType}) changed to Completed");
+                        NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
+                        NodeLib.CmdChangeRequest.Set(client, true);
                         break;
                     }
                 case MachineState.Execute:
@@ -117,6 +121,8 @@ namespace communication.Communication
                 case MachineState.Stopped:
                     {
                         Debug.WriteLine($"State (Machine: {beerType}) changed to Stopped");
+                        NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
+                        NodeLib.CmdChangeRequest.Set(client, true);
                         break;
                     }
                 case MachineState.Aborted:
@@ -130,6 +136,29 @@ namespace communication.Communication
                         break;
                     }
             }
+        }
+
+        public void EnqueueCommand(Command command)
+        {
+            cmdQueue.Enqueue(command);
+        }
+        private void HandleIdle()
+        {
+            if (cmdQueue.Count == 0)
+            {
+                return; //TODO: Instead of return, something something wait for a wake up
+            }
+
+            var command = cmdQueue.Dequeue();
+
+            // Load command variables into machine
+            NodeLib.ProductId.Set(client, (float)beerType);
+            NodeLib.ProductsAmount.Set(client, command.Amount);
+            NodeLib.MachSpeed.Set(client, command.Speed);
+
+            // Start production
+            NodeLib.CtrlCmd.Set(client, CtrlCommand.Start);
+            NodeLib.CmdChangeRequest.Set(client, true);
         }
     }
 }
