@@ -22,12 +22,24 @@ namespace communication.Communication.Nodes
 
         public OpcSubscription? Subscription { get; private set; }
 
-        public T GetValue(OpcClient client)
+        // This extra layer exists, because we later might want to make
+        // it async and check wether or not the value is acutally being
+        // stored correctly. 
+        // Its kinda wierd that client.Read/Write is not async.
+        public T Get(OpcClient client)
+        {
+            return GetValue(client);
+        }
+        private T GetValue(OpcClient client)
         {
             T value = (T)client.ReadNode(nodeid).Value;
             return value;
         }
-        public void SetValue(OpcClient client, T value)
+        public void Set(OpcClient client, T value)
+        {
+            SetValue(client, value);
+        }
+        private void SetValue(OpcClient client, T value)
         {
             var r = client.WriteNode(nodeid, value);
             if (r.IsBad)
