@@ -8,7 +8,6 @@ namespace communication.Communication.Nodes
     public class OpcNode<T> : OpcNodeBase
     {
         private readonly string nodeid;
-        private OpcSubscription? subscription;
         public OpcNode(string nodeid)
         {
             this.nodeid = nodeid;
@@ -16,14 +15,11 @@ namespace communication.Communication.Nodes
         // Destructor. Runs when object is garbage collected
         ~OpcNode() 
         {
-            if (subscription != null)
-                subscription.Unsubscribe();
+            if (Subscription != null)
+                Subscription.Unsubscribe();
         }
 
-        public OpcSubscription? Subscription
-        {
-            get { return subscription; }
-        }
+        public OpcSubscription? Subscription { get; private set; }
 
         public T Value
         {
@@ -46,9 +42,9 @@ namespace communication.Communication.Nodes
 
         public void SetSubscription(OpcDataChangeReceivedEventHandler func, int intervalMs)
         {
-            subscription = client.SubscribeDataChange(nodeid, func);
-            subscription.PublishingInterval = intervalMs;
-            subscription.ApplyChanges();
+            Subscription = client.SubscribeDataChange(nodeid, func);
+            Subscription.PublishingInterval = intervalMs;
+            Subscription.ApplyChanges();
         }
     }
 }
