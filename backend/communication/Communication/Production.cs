@@ -64,5 +64,10 @@ namespace communication.Communication
                 throw; // Rethrow to handle in controller
             }
         }
+    
+        public void NewCommand(Command command)
+        {
+            machines[command.Type].EnqueueCommand(command);
+        }
     }
 }
