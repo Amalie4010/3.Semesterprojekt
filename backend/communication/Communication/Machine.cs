@@ -1,5 +1,9 @@
-﻿using communication.Models;
+﻿using communication.Communication.Nodes;
+using communication.Models;
+using Opc.Ua;
+using Opc.Ua.Client;
 using Opc.UaFx.Client;
+using System;
 using System.Diagnostics;
 namespace communication.Communication
 {
@@ -9,9 +13,10 @@ namespace communication.Communication
         private Queue<Command> cmdQueue = new Queue<Command>();
         private string opcUrl = "opc.tcp://localhost:4840";
         private int timeoutMs = 5000;
-        private PowerState powerState = PowerState.Off;
+        private int publishInterval = 100;
         private OpcClient client;
-        private List<OpcSubscription> subscriptions = new List<OpcSubscription>();
+        
+        public PowerState State { get; private set; }
         private Machine()
         {
             // Create client on URL
@@ -26,19 +31,21 @@ namespace communication.Communication
             }
             return instance;
         }
+        public static OpcClient GetClient()
+        {
+            if (instance == null)
+            {
+                instance = GetInstance();
+            }
+            if (instance.client == null)
+            {
+                throw new Exception("Something went wrong whilst creating the opc client in machine");
+            }
+            return instance.client;
+        }
         private void SetupSubscribtions()
         {
-            var stateCurrentSub = client.SubscribeDataChange(NodeLib.StateCurrent, HandleStateCurrentChange);
-            stateCurrentSub.PublishingInterval = 100;
-            subscriptions.Add(stateCurrentSub);
-            stateCurrentSub.ApplyChanges();
-        }
-        private void DestroySubscribtions()
-        {
-            foreach (var sub in subscriptions)
-            {
-                sub.Unsubscribe();
-            }
+            NodeLib.StateCurrent.SetSubscription(HandleStateCurrentChange, publishInterval); 
         }
 
         public async Task<PowerState> Power(PowerState powerState)
@@ -51,7 +58,7 @@ namespace communication.Communication
             void Handler(object? sender, EventArgs? e)
             {
                 tcs.SetResult(powerState);
-                this.powerState = powerState;
+                State = powerState;
             }
 
             // Determine weather to wait for connected or disconnected
@@ -97,19 +104,45 @@ namespace communication.Communication
 
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
-            Debug.WriteLine($"State changed: {e.Item.Value.ToString()}");
+            int state = (int)e.Item.Value.Value;
+            switch(state)
+            {
+                case MachineState.Idle:
+                    {
+                        Debug.WriteLine($"State changed to Idle");
+                        break;
+                    }
+                case MachineState.Held:
+                    {
+                        Debug.WriteLine($"State changed to Held");
+                        break;
+                    }
+                case MachineState.Completed:
+                    {
+                        Debug.WriteLine($"State changed to Completed");
+                        break;
+                    }
+                case MachineState.Execute:
+                    {
+                        Debug.WriteLine($"State changed to Execute");
+                        break;
+                    }
+                case MachineState.Stopped:
+                    {
+                        Debug.WriteLine($"State changed to Stopped");
+                        break;
+                    }
+                case MachineState.Aborted:
+                    {
+                        Debug.WriteLine($"State changed to Aborted");
+                        break;
+                    }
+                default:
+                    {
+                        Debug.WriteLine("State changed to other");
+                        break;
+                    }
+            }
         }
-
-        //public void testRead()
-        //{
-        //    var r = client.ReadNode(NodeLib.StateCurrent);
-        //    Debug.WriteLine(r.ToString());
-        //}
-        //public void testWrite(float value)
-        //{
-        //    client.WriteNode(NodeLib.CtrlCmd, value);
-        //    client.WriteNode(NodeLib.CmdChangeRequest, true);
-        //}
-
     }
 }
