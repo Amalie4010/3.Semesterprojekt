@@ -44,6 +44,7 @@ namespace communication.Controllers
             }
 
             Command command = new(commandDto);
+            _production.NewCommand(command);
             return Ok(command);
         }
         [HttpDelete("command/{id}")]
