@@ -5,7 +5,8 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace communication.Communication.Nodes
 {
-    public class OpcNode<T> : OpcNodeBase
+    // All needed instances of this class are (probably) instantiated in NodeLib.cs
+    public class OpcNode<T>
     {
         private readonly string nodeid;
         public OpcNode(string nodeid)
@@ -21,17 +22,12 @@ namespace communication.Communication.Nodes
 
         public OpcSubscription? Subscription { get; private set; }
 
-        public T Value
-        {
-            get { return GetValue(); }
-            set { SetValue(value); }
-        }
-        private T GetValue()
+        public T GetValue(OpcClient client)
         {
             T value = (T)client.ReadNode(nodeid).Value;
             return value;
         }
-        private void SetValue(T value)
+        public void SetValue(OpcClient client, T value)
         {
             var r = client.WriteNode(nodeid, value);
             if (r.IsBad)
@@ -40,11 +36,12 @@ namespace communication.Communication.Nodes
             }
         }
 
-        public void SetSubscription(OpcDataChangeReceivedEventHandler func, int intervalMs)
+        public OpcSubscription AddSubscription(OpcClient client, OpcDataChangeReceivedEventHandler func, int intervalMs)
         {
-            Subscription = client.SubscribeDataChange(nodeid, func);
-            Subscription.PublishingInterval = intervalMs;
-            Subscription.ApplyChanges();
+            var sub = client.SubscribeDataChange(nodeid, func);
+            sub.PublishingInterval = intervalMs;
+            sub.ApplyChanges();
+            return sub;
         }
     }
 }
