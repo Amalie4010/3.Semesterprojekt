@@ -10,18 +10,14 @@ namespace communication.Communication
     public class Production
     {
         private static Production? instance;
-        private string opcUrl = "opc.tcp://localhost:4840";
-        private OpcClient client; // The acutal Opc Ua client
-        private int timeoutMs = 5000; // The timeout for any opc ua action
-        private int publishInterval = 100; // The default interval between publishes
-        private SemaphoreSlim powerSemaphore = new SemaphoreSlim(1, 1); // semaphore or Power method
-        private int currentState;
+        public static int timeoutMs = 5000; // The timeout for any opc ua action
+        public static int publishInterval = 100; // The default interval between publishes
+        private Dictionary<BeerTypes, Machine> machines = new();
         public PowerState State { get; private set; }
         
         private Production()
         {
-            // Create client on URL
-            client = new OpcClient(opcUrl);
+            machines.Add(BeerTypes.Pilsner, new Machine(BeerTypes.Pilsner, "opc.tcp://localhost:4840"));
         }
         public static Production GetInstance()
         {
@@ -31,125 +27,41 @@ namespace communication.Communication
             }
             return instance;
         }
-        public static OpcClient GetClient()
-        {
-            if (instance == null)
-            {
-                instance = GetInstance();
-            }
-            if (instance.client == null)
-            {
-                throw new Exception("Something went wrong whilst creating the opc client in machine");
-            }
-            return instance.client;
-        }
-        private void SetupSubscribtions()
-        {
-            NodeLib.StateCurrent.SetSubscription(HandleStateCurrentChange, publishInterval); 
-        }
+        
 
+        // (TimeOut exceptions are handled in machine.Connect.)
         public async Task<PowerState> Power(PowerState powerState)
         {
-            await powerSemaphore.WaitAsync(); // Wait for space in code below
             try
             {
-                // Create new tcs
-                var tcs = new TaskCompletionSource<PowerState>();
-
-
-                // Create event handler
-                void Handler(object? sender, EventArgs? e)
-                {
-                    tcs.SetResult(powerState);
-                    State = powerState;
-                }
-
-                // Determine weather to wait for connected or disconnected
-                if (powerState == PowerState.On)
-                {
-                    client.Connected += Handler;
-                    client.Connect();
-                }
-                else
-                {
-                    client.Disconnected += Handler;
-                    client.Disconnect();
-                }
-
-                
-                // Wait for connection or timeout
-                var t = await Task.WhenAny(
-                    tcs.Task,
-                    Task.Delay(timeoutMs)
-                    );
-
-                // Cleanup handler
-                if (powerState == PowerState.On)
-                {
-                    client.Connected -= Handler;
-                    SetupSubscribtions();
-                }
-                else
-                {
-                    client.Disconnected -= Handler;
-                    //DestroySubscribtions();
-                }
-
-                // Handle timeout
-                if (t != tcs.Task)
-                {
-                    throw new TimeoutException("Connection timed out");
-                }
-
-                // Return result
-                return await tcs.Task;
-            } finally
+                 List<Task<PowerState>> connectTasks = new();
+             
+                 // Start async connect tasks
+                 foreach(var kvp in machines)
+                 {
+                     var machine = kvp.Value;
+                     connectTasks.Add(machine.Connect(powerState));
+                 }
+            
+                 // Wait for all tasks to finish
+            
+                 var results = await Task.WhenAll(connectTasks);
+            
+                 return powerState; // Return desired value
+            } 
+            catch (Exception e)
             {
-                powerSemaphore.Release();// Release semaphore
-            }
-        }
-
-        private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
-        {
-            int state = (int)e.Item.Value.Value;
-            currentState = state;
-            switch(state)
-            {
-                case MachineState.Idle:
+                if (e is TimeoutException)
+                {
+                    // Reverse action if any doesnt power on to ensure continuity across all machines
+                    PowerState psOpposite = powerState == PowerState.On ? PowerState.Off : PowerState.On; // Reverse the powerstate
+                    foreach (var kvp in machines)
                     {
-                        Debug.WriteLine($"State changed to Idle");
-                        break;
+                        var machine = kvp.Value;
+                        await machine.Connect(psOpposite);
                     }
-                case MachineState.Held:
-                    {
-                        Debug.WriteLine($"State changed to Held");
-                        break;
-                    }
-                case MachineState.Completed:
-                    {
-                        Debug.WriteLine($"State changed to Completed");
-                        break;
-                    }
-                case MachineState.Execute:
-                    {
-                        Debug.WriteLine($"State changed to Execute");
-                        break;
-                    }
-                case MachineState.Stopped:
-                    {
-                        Debug.WriteLine($"State changed to Stopped");
-                        break;
-                    }
-                case MachineState.Aborted:
-                    {
-                        Debug.WriteLine($"State changed to Aborted");
-                        break;
-                    }
-                default:
-                    {
-                        Debug.WriteLine("State changed to other");
-                        break;
-                    }
+                }
+                throw; // Rethrow to handle in controller
             }
         }
     }
