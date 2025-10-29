@@ -7,27 +7,27 @@ using System;
 using System.Diagnostics;
 namespace communication.Communication
 {
-    public class Machine
+    public class Production
     {
-        private static Machine? instance;
-        private Queue<Command> cmdQueue = new Queue<Command>();
+        private static Production? instance;
         private string opcUrl = "opc.tcp://localhost:4840";
-        private int timeoutMs = 5000;
-        private int publishInterval = 100;
-        private OpcClient client;
-        
+        private OpcClient client; // The acutal Opc Ua client
+        private int timeoutMs = 5000; // The timeout for any opc ua action
+        private int publishInterval = 100; // The default interval between publishes
+        private SemaphoreSlim powerSemaphore = new SemaphoreSlim(1, 1); // semaphore or Power method
+        private int currentState;
         public PowerState State { get; private set; }
-        private Machine()
+        
+        private Production()
         {
             // Create client on URL
             client = new OpcClient(opcUrl);
-            cmdQueue.Enqueue(new Command(BeerTypes.Pilsner, 100, 150));
         }
-        public static Machine GetInstance()
+        public static Production GetInstance()
         {
             if (instance == null)
             {
-                instance = new Machine();
+                instance = new Production();
             }
             return instance;
         }
@@ -50,61 +50,69 @@ namespace communication.Communication
 
         public async Task<PowerState> Power(PowerState powerState)
         {
-            // Create new tcs
-            var tcs = new TaskCompletionSource<PowerState>();
-
-
-            // Create event handler
-            void Handler(object? sender, EventArgs? e)
+            await powerSemaphore.WaitAsync(); // Wait for space in code below
+            try
             {
-                tcs.SetResult(powerState);
-                State = powerState;
-            }
+                // Create new tcs
+                var tcs = new TaskCompletionSource<PowerState>();
 
-            // Determine weather to wait for connected or disconnected
-            if (powerState == PowerState.On)
+
+                // Create event handler
+                void Handler(object? sender, EventArgs? e)
+                {
+                    tcs.SetResult(powerState);
+                    State = powerState;
+                }
+
+                // Determine weather to wait for connected or disconnected
+                if (powerState == PowerState.On)
+                {
+                    client.Connected += Handler;
+                    client.Connect();
+                }
+                else
+                {
+                    client.Disconnected += Handler;
+                    client.Disconnect();
+                }
+
+                
+                // Wait for connection or timeout
+                var t = await Task.WhenAny(
+                    tcs.Task,
+                    Task.Delay(timeoutMs)
+                    );
+
+                // Cleanup handler
+                if (powerState == PowerState.On)
+                {
+                    client.Connected -= Handler;
+                    SetupSubscribtions();
+                }
+                else
+                {
+                    client.Disconnected -= Handler;
+                    //DestroySubscribtions();
+                }
+
+                // Handle timeout
+                if (t != tcs.Task)
+                {
+                    throw new TimeoutException("Connection timed out");
+                }
+
+                // Return result
+                return await tcs.Task;
+            } finally
             {
-                client.Connected += Handler;
-                client.Connect();
+                powerSemaphore.Release();// Release semaphore
             }
-            else
-            {
-                client.Disconnected += Handler;
-                client.Disconnect();
-            }
-
-
-            // Wait for connection or timeout
-            var t = await Task.WhenAny(
-                tcs.Task,
-                Task.Delay(timeoutMs)
-                );
-
-            // Cleanup handler
-            if (powerState == PowerState.On)
-            {
-                client.Connected -= Handler;
-                SetupSubscribtions();
-            }
-            else
-            {
-                client.Disconnected -= Handler;
-                //DestroySubscribtions();
-            }
-
-            // Handle timeout
-            if (t != tcs.Task)
-            {
-                throw new TimeoutException("Connection timed out");
-            }
-
-            // Return result
-            return await tcs.Task;
         }
 
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
             int state = (int)e.Item.Value.Value;
+            currentState = state;
             switch(state)
             {
                 case MachineState.Idle:

@@ -1,3 +1,4 @@
+using communication.Communication;
 using communication.Dtos;
 using communication.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -6,21 +7,42 @@ using Microsoft.AspNetCore.Mvc;
 namespace communication.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/communication")]
     public class MachineController : ControllerBase
     {
+        private readonly Production _production;
         public MachineController()
         {
+            _production = Production.GetInstance();
         }
 
         [HttpPost("power")]
-        public IActionResult Power([FromBody] PowerState power_state)
+        public async Task<IActionResult> Power([FromBody] PowerState power_state)
         {
-            return Ok(power_state);
+            if (_production.State == power_state)
+                return Ok(_production.State);
+
+            var ps = await _production.Power(power_state);
+            if (ps == power_state)
+            {
+                return Ok(ps);
+            } else if (power_state == PowerState.On)
+            {
+                return StatusCode(500, "Could not establish connection with machine(s)");
+            } else
+            {
+                return StatusCode(500, "Something went wrong whilst disconnecting");
+            }
         }
+
         [HttpPost("command")]
         public IActionResult SendCommand([FromBody] PostCommandDto commandDto)
         {
+            if (_production.State == PowerState.Off)
+            {
+                return StatusCode(429, "Production must be powered on before using this endpoint");
+            }
+
             Command command = new(commandDto);
             return Ok(command);
         }

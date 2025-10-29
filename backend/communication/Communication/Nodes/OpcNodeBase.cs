@@ -4,6 +4,6 @@ namespace communication.Communication.Nodes
 {
     public abstract class OpcNodeBase
     {
-        protected static OpcClient client = Machine.GetClient();
+        protected static OpcClient client = Production.GetClient();
     }
 }
