@@ -46,7 +46,8 @@ namespace communication.Communication
                  // Wait for all tasks to finish
             
                  var results = await Task.WhenAll(connectTasks);
-            
+
+                 State = powerState;
                  return powerState; // Return desired value
             } 
             catch (Exception e)
