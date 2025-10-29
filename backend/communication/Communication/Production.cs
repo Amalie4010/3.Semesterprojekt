@@ -10,6 +10,9 @@ namespace communication.Communication
     public class Production
     {
         private static Production? instance;
+        public static HashSet<Guid> completedCommandIds = new();
+        public static HashSet<Guid> queuedCommandIds = new();
+        public static HashSet<Guid> deletedCommandIds = new();
         public static int timeoutMs = 5000; // The timeout for any opc ua action
         public static int publishInterval = 100; // The default interval between publishes
         private Dictionary<BeerTypes, Machine> machines = new();
@@ -69,6 +72,10 @@ namespace communication.Communication
         public void NewCommand(Command command)
         {
             machines[command.Type].EnqueueCommand(command);
+        }
+        public void DeleteCommand(Guid id)
+        {
+            deletedCommandIds.Add(id);
         }
     }
 }

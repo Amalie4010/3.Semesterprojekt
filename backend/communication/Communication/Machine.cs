@@ -152,6 +152,7 @@ namespace communication.Communication
         public void EnqueueCommand(Command command)
         {
             cmdQueue.Enqueue(command);
+            Production.queuedCommandIds.Add(command.Id);
             // Keep old ref
             var oldTcs = queueChangedTcs;
             queueChangedTcs = new(); // Reset tcs
@@ -175,9 +176,15 @@ namespace communication.Communication
                     return;
                 }    
             }
+            Command command = cmdQueue.Dequeue();
+            
+            // Skip and remove next command if its deleted
+            while (Production.deletedCommandIds.Contains(command.Id))
+                Production.queuedCommandIds.Remove(command.Id);
+                Production.deletedCommandIds.Remove(command.Id);
+                command = cmdQueue.Dequeue();
 
-            var command = cmdQueue.Dequeue();
-
+            Production.queuedCommandIds.Remove(command.Id);
             // Load command variables into machine
             NodeLib.ProductId.Set(client, (float)beerType);
             NodeLib.ProductsAmount.Set(client, command.Amount);
@@ -186,6 +193,8 @@ namespace communication.Communication
             // Start production
             NodeLib.CtrlCmd.Set(client, CtrlCommand.Start);
             NodeLib.CmdChangeRequest.Set(client, true);
+
+            Production.completedCommandIds.Add(command.Id);
         }
     }
 }
