@@ -10,3 +10,9 @@ Because /api is prefixed in api routes file */
 Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);
 
 Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])->name('order.makeOrder');
+
+
+/* Routes for event attendee dynamic views */
+Route::get('/attendee', function () { 
+    return view('attendee');
+}) -> name('goto.attendee');

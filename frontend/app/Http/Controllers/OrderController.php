@@ -34,10 +34,14 @@ class OrderController extends Controller
         $this->postOrder($order);
 
         /* Send response back with message in the header and data as data and with status code OBS: This isnt really required its just if anybody need it */
+        /*
         return response()->json([
             'message' => 'Order saved successfully',
             'data' => $data
         ], 201);
+        */
+        return redirect(route('goto.attendee'))->with('success','Order Successful');
+
     }
 
     // Show all orders
