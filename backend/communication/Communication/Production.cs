@@ -77,5 +77,14 @@ namespace communication.Communication
         {
             deletedCommandIds.Add(id);
         }
+        public Command[] GetCurrentCommands()
+        {
+            return machines.Values.ToArray().Select(m => m.CurrentCommand).ToArray();
+        }
+        public int[] GetProgress()
+        {
+            return machines.Values.ToArray().Select(m => m.GetProgress()).ToArray();
+        }
+
     }
 }

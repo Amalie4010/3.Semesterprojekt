@@ -19,6 +19,7 @@ namespace communication.Communication
         private Queue<Command> cmdQueue = new();
         private int currentState = 0; // current PackML state
 
+        public Command CurrentCommand { get; private set; }
         public bool Connected { get; private set; }
 
         public Machine(BeerTypes beerType, string opcUrl)
@@ -176,13 +177,18 @@ namespace communication.Communication
                     return;
                 }    
             }
+
+            // Execute next command
+
             Command command = cmdQueue.Dequeue();
             
             // Skip and remove next command if its deleted
             while (Production.deletedCommandIds.Contains(command.Id))
+            {
                 Production.queuedCommandIds.Remove(command.Id);
                 Production.deletedCommandIds.Remove(command.Id);
                 command = cmdQueue.Dequeue();
+            }
 
             Production.queuedCommandIds.Remove(command.Id);
             // Load command variables into machine
@@ -194,7 +200,12 @@ namespace communication.Communication
             NodeLib.CtrlCmd.Set(client, CtrlCommand.Start);
             NodeLib.CmdChangeRequest.Set(client, true);
 
-            Production.completedCommandIds.Add(command.Id);
+            CurrentCommand = command;
+            Production.completedCommandIds.Add(command.Id); // Not truly completed, but also too late to delete normally
+        }
+        public int GetProgress()
+        {
+            return NodeLib.ProducedAmount.Get(client);
         }
     }
 }
