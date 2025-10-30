@@ -62,15 +62,14 @@ namespace communication.Controllers
             return Ok();
         }
         [HttpGet("command/current")]
-        public ActionResult<Command> GetCommandCurrent()
+        public ActionResult<Command[]> GetCommandCurrent()
         {
-            Command command = new Command(BeerTypes.Pilsner, 1, 1);
-            return command;
+            return _production.GetCurrentCommands();
         }
-        [HttpGet("command/{id}/progress")]
-        public ActionResult<int> GetCommandProgress(Guid id)
+        [HttpGet("command/current/progress")]
+        public ActionResult<int[]> GetCommandProgress()
         {
-            return 1;
+            return _production.GetProgress();
         }
         [HttpGet("status")]
         public ActionResult<MachineStatus> GetMachineStatus()
