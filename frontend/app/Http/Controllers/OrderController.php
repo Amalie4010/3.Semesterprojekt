@@ -11,9 +11,10 @@ class OrderController extends Controller
     // Post order to statistics microservice
     public function postOrder($order)
     {
-        Http::post('/api/statistic/order', [
+        Http::post('http://127.0.0.1:8080/api/statistics/order', [
             'beer_type' => $order->beer_type,
             'quantity' => $order->quantity,
+            'createdAt' => $order->created_at,
         ]);
     }
 
@@ -27,12 +28,10 @@ class OrderController extends Controller
         ]);
 
         //Here we make a new varaible and use a static method from Product model class and use the create() method to store $data from before into the database
-        Order::create($data);
+        $order = Order::create($data);
 
-        /*  */
-        $this->postOrder($data);
-
-
+        /* Use post order to send to statistic */
+        $this->postOrder($order);
 
         /* Send response back with message in the header and data as data and with status code OBS: This isnt really required its just if anybody need it */
         /*
