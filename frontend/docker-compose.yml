@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8
+    container_name: myapp-mysql
+    #command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: laravel
+    ports:
+      - "3306:3306"        
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  pma:
+    image: phpmyadmin:latest
+    container_name: myapp-phpmyadmin
+    environment:
+      PMA_HOST: myapp-mysql   # must match the container_name above
+      PMA_USER: root
+      PMA_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+# volumes part should do so that every time u use the database, it wont delete all of your stuff, that u added to the database
+volumes:
+  dbdata:
+
+#another comment, you would need ur user information to be the same as the first time u intiate the database, since the account information will be saved there, if u change it in .env and dockerfile. it wont match with the database, and there will be a account issue, u will need to use the same as the first one or restart (delete and open again) to use the new information
