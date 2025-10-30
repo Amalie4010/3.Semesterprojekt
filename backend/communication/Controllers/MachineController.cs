@@ -34,6 +34,11 @@ namespace communication.Controllers
                 return StatusCode(500, "Something went wrong whilst disconnecting");
             }
         }
+        [HttpGet("power")]
+        public ActionResult<PowerState> GetPower()
+        {
+            return Ok(_production.State);
+        }
 
         [HttpPost("command")]
         public IActionResult SendCommand([FromBody] PostCommandDto commandDto)
