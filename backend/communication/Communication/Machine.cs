@@ -26,7 +26,6 @@ namespace communication.Communication
         {
             this.beerType = beerType;
             client = new OpcClient(opcUrl);
-
         }
         public async Task<PowerState> Connect(PowerState powerState)
         {
