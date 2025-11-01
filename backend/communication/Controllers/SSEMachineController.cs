@@ -1,37 +1,42 @@
-using communication.Communication;
-using communication.Dtos;
+using System.Runtime.CompilerServices;
 using communication.Models;
-
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using StockPriceAPI.Model; 
 using System.Text.Json;
-using communication.Models;
+using Microsoft.AspNetCore.Http;
 
-namespace DefaultNamespace;
+namespace DefaultNamespace
 {
-    
-    // ********** IF YOU WANT TO UNDERSTAND THIS FULLY SEE THIS VIDEO: https://www.youtube.com/watch?v=x0725PDUho8 **********
-    
-    
     [ApiController]
     [Route("api/communication/SSEMachine")]
     public class SSEMachineController : ControllerBase
     {
+        /**********
+         THIS CLASS IS THE ENDPOINT FOR SSE
+         
+         READ THIS IF YOU WANT TO FULLY UNDERSTAND HOW SSE WORKS IN C#
+         https://dev.to/mayank_agarwal/implementing-real-time-updates-with-server-sent-events-sse-in-c-net-a-complete-guide-248l
+        ***********/
+       
+        
         // Constructor
         public SSEMachineController()
         {
         }
 
-        // GET method for the endpoint - with IResult type. IResult makes it possible to return an object thats represented as http response
+        // GET method for the endpoint with EmptyResult. EmptyResult returns no specific data at the end of the session
         [HttpGet]
-        public IResult GetMachineStatus(CancellationToken cancellationToken)
+        
+        /*
+         * Cancellation token makes it possible so when the user closes the browser
+         * that request should stop, otherwise the server keeps looping forever
+         */
+        public async Task<EmptyResult> GetMachineStatus(CancellationToken cancellationToken) 
         {
             // Return an SSE stream as an IAsyncEnumerable
-            //IAsyncEnumaerable makes it possible to instead of returning all data at once, it returns items one by one asynchronously like SSE does
-            async IAsyncEnumerable<string> StreamMachineStatus([EnumeratorCancellation] CancellationToken ct)
+            //IAsyncEnumaerable makes it possible to instead of returning all data at once, it returns items one by one like SSE does
+            async IAsyncEnumerable<string> SseMachineStatus([EnumeratorCancellation] CancellationToken ct)
             {
-                //Returns singleton machinestatus
+                //Instantiate singleton machinestatus
                 var machineStatus = MachineStatus.GetInstance();
 
                 // Loop until the client disconnects
@@ -40,18 +45,36 @@ namespace DefaultNamespace;
                     // Convert machineStatus status into JSON
                     var json = JsonSerializer.Serialize(machineStatus);
 
-                    // Yield the JSON as a SSE message : Yield doesnt return everything at once it makes it possible to return one thing at the time like no polling
+                    //Yield the JSON as a SSE message. yield doesnt return everything at once it makes it possible to return one thing at the time like no polling
                     //Yield pause and resume later each time it produces a new data
                     //If it was nor return without "yield" then it returns once and the coinnection is lost
                     yield return $"data: {json}\n\n";
 
                     // Wait one second before sending the next update about the machine (machineStatus objekt)
-                    await Task.Delay(1000, ct);
+                    await Task.Delay(2000, ct);
                 }
             }
 
-            // Return the SSE stream as the response
-            return TypedResults.ServerSentEvents(StreamMachineStatus(cancellationToken));
+            // Return the stream as an SSE response . Need this for the browser to know its SSE
+            Response.Headers.Add("Content-Type", "text/event-stream");
+            
+            //CAlls the SseMachineStatus Method
+            await foreach (var item in SseMachineStatus(cancellationToken))
+            {
+                //Item is the chunks of data that is sent everytime time in sse
+                await Response.WriteAsync(item);
+                await Response.Body.FlushAsync();
+                
+                /*
+                 When you send data with Response.WriteAsync(item),
+                 c# stores it in an buffer before sending it
+                 and for SSE, we need each message to arrive immediately so the method 
+                 FlushAsync sends the data immediatly instead of storing it in the buffer
+                 */
+            }
+            
+            //Returns nothing if the connection is lost
+            return new EmptyResult();
         }
     }
 }

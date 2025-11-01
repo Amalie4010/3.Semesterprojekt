@@ -27,6 +27,11 @@ namespace communication.Communication
             this.beerType = beerType;
             client = new OpcClient(opcUrl);
         }
+
+        public Machine(string opcUrl)
+        {
+            client = new OpcClient(opcUrl);
+        }
         public async Task<PowerState> Connect(PowerState powerState)
         {
             await connectSemaphore.WaitAsync(); // Wait for space in code below
