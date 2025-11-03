@@ -2,6 +2,10 @@ using communication.Communication;
 using communication.Controllers;
 using communication.Interfaces;
 
+using communication.Models;
+using DefaultNamespace;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

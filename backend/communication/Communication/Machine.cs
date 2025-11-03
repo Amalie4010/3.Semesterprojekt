@@ -24,7 +24,11 @@ namespace communication.Communication
         {
             this.cmdQueue = cmdQueue;
             client = new OpcClient(opcUrl);
+        }
 
+        public Machine(string opcUrl)
+        {
+            client = new OpcClient(opcUrl);
         }
         public async Task<PowerState> Connect(PowerState powerState)
         {
