@@ -8,7 +8,7 @@ app.use(express.urlencoded({extended: true}));
 const PORT = 8080;
 
 //Use routes
-app.use("/api/statistics", routes);
+app.use("/api", routes);
 
 
 //Listening
