@@ -183,6 +183,11 @@ namespace communication.Communication
             ushort raw = NodeLib.ProducedAmount.Get(client);
             return Convert.ToInt32(raw);
         }
+        public void Stop()
+        {
+            NodeLib.CtrlCmd.Set(client, CtrlCommand.Stop);
+            NodeLib.CmdChangeRequest.Set(client, true);
+        }
         public bool isConnected() => Connected;
         public Command? GetCurrentCommand() => CurrentCommand;
     }

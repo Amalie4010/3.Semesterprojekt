@@ -49,6 +49,8 @@ namespace communication.Communication
             
                  var results = await Task.WhenAll(connectTasks);
 
+                 machines.ForEach(machine => machine.Stop());
+
                  state = powerState;
                  return powerState; // Return desired value
             } 

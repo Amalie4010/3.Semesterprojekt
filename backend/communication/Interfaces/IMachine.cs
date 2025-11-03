@@ -11,6 +11,7 @@ namespace communication.Interfaces
         public Task<PowerState> Connect(PowerState powerState);
         public int GetProgress();
         public bool isConnected();
+        public void Stop();
         public Command? GetCurrentCommand();
     }
 }
