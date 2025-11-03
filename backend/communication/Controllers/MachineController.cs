@@ -55,19 +55,15 @@ namespace communication.Controllers
         [HttpDelete("command/{id}")]
         public IActionResult DeleteCommand(Guid id)
         {
-            bool isQueued = Production.queuedCommandIds.Contains(id);
-            bool isCompleted = Production.completedCommandIds.Contains(id);
-            if (isCompleted)
-                return Conflict("The specified command has already been completed");
-            if (!isQueued)
-                return BadRequest($"A command with id = '{id}' doesn't exist");
-
-            _production.DeleteCommand(id);
+            bool deleted = _production.DeleteCommand(id);
+            if (!deleted)
+                return BadRequest($"The specified command either doesn't exist or has already been completed");
 
             return Ok();
+
         }
         [HttpGet("command/current")]
-        public ActionResult<Command[]> GetCommandCurrent()
+        public ActionResult<Command?[]> GetCommandCurrent()
         {
             return _production.GetCurrentCommands();
         }
@@ -75,11 +71,6 @@ namespace communication.Controllers
         public ActionResult<int[]> GetCommandProgress()
         {
             return _production.GetProgress();
-        }
-        [HttpGet("status")]
-        public ActionResult<MachineStatus> GetMachineStatus()
-        {
-            return MachineStatus.GetInstance();
         }
     }
 }

@@ -12,19 +12,16 @@ namespace communication.Communication
     public class Machine
     {
         public readonly OpcClient client; // The acutal Opc Ua client
-        private readonly BeerTypes beerType;
-        private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore or Power method
+        private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore for Power method
         private CancellationTokenSource stateChangedCts = new();
-        private TaskCompletionSource queueChangedTcs = new();
-        private Queue<Command> cmdQueue = new();
         private int currentState = 0; // current PackML state
-
-        public Command CurrentCommand { get; private set; }
+        private CommandQueue cmdQueue;
+        public Command? CurrentCommand { get; private set; }
         public bool Connected { get; private set; }
 
-        public Machine(BeerTypes beerType, string opcUrl)
+        public Machine(string opcUrl, CommandQueue cmdQueue)
         {
-            this.beerType = beerType;
+            this.cmdQueue = cmdQueue;
             client = new OpcClient(opcUrl);
 
         }
@@ -97,11 +94,10 @@ namespace communication.Communication
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
             int state = (int)e.Item.Value.Value;
+            currentState = state;
             // Keep old cts ref, for cancelling later, when state change is done
             var oldCts = stateChangedCts;
             stateChangedCts = new();
-
-            currentState = state;
             oldCts.Cancel(); // Cancel any waiters
             
             // Actually handle the new state
@@ -109,90 +105,69 @@ namespace communication.Communication
             {
             case MachineState.Idle:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Idle");
+                    Debug.WriteLine($"State changed to Idle");
                     _ = HandleIdle();
                     break;
                 }
             case MachineState.Held:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Held");
+                    Debug.WriteLine($"State  changed to Held");
                     break;
                 }
             case MachineState.Completed:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Completed");
+                    Debug.WriteLine($"State changed to Completed");
+                    CurrentCommand = null;
                     NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
                     NodeLib.CmdChangeRequest.Set(client, true);
                     break;
                 }
             case MachineState.Execute:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Execute");
+                    Debug.WriteLine($"State changed to Execute");
                     break;
                 }
             case MachineState.Stopped:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Stopped");
+                    Debug.WriteLine($"State changed to Stopped");
                     NodeLib.CtrlCmd.Set(client, CtrlCommand.Reset);
                     NodeLib.CmdChangeRequest.Set(client, true);
                     break;
                 }
             case MachineState.Aborted:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to Aborted");
+                    Debug.WriteLine($"State changed to Aborted");
                     break;
                 }
             default:
                 {
-                    Debug.WriteLine($"State (Machine: {beerType}) changed to other");
+                    Debug.WriteLine($"State changed to other");
                     break;
                 }
             }
         }
 
-        public void EnqueueCommand(Command command)
-        {
-            cmdQueue.Enqueue(command);
-            Production.queuedCommandIds.Add(command.Id);
-            // Keep old ref
-            var oldTcs = queueChangedTcs;
-            queueChangedTcs = new(); // Reset tcs
-            // alert old waiters AFTER making new
-            oldTcs.SetResult();
-        }
         private async Task HandleIdle()
         {
-            // Wait for queue to change when idle with no pending commands
-            // or for state to exit idle
-            while (cmdQueue.Count == 0)
+
+            Task<Command> queueTask = cmdQueue.Dequeue();
+            // Wait for next command to be available
+            try
             {
-                try
-                {
-                    await Task.WhenAny(
-                        Task.Delay(Timeout.Infinite, stateChangedCts.Token),
-                        queueChangedTcs.Task
-                        );
-                } catch(TaskCanceledException)
-                {
-                    return;
-                }    
+                await Task.WhenAny(
+                    Task.Delay(Timeout.Infinite, stateChangedCts.Token),
+                    queueTask
+                    );
             }
-
-            // Execute next command
-
-            Command command = cmdQueue.Dequeue();
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+            Command command = queueTask.Result;
             
-            // Skip and remove next command if its deleted
-            while (Production.deletedCommandIds.Contains(command.Id))
-            {
-                Production.queuedCommandIds.Remove(command.Id);
-                Production.deletedCommandIds.Remove(command.Id);
-                command = cmdQueue.Dequeue();
-            }
 
-            Production.queuedCommandIds.Remove(command.Id);
             // Load command variables into machine
-            NodeLib.ProductId.Set(client, (float)beerType);
+            NodeLib.ProductId.Set(client, (float)command.Type);
             NodeLib.ProductsAmount.Set(client, command.Amount);
             NodeLib.MachSpeed.Set(client, command.Speed);
 
@@ -201,11 +176,11 @@ namespace communication.Communication
             NodeLib.CmdChangeRequest.Set(client, true);
 
             CurrentCommand = command;
-            Production.completedCommandIds.Add(command.Id); // Not truly completed, but also too late to delete normally
         }
         public int GetProgress()
         {
-            return NodeLib.ProducedAmount.Get(client);
+            ushort raw = NodeLib.ProducedAmount.Get(client);
+            return Convert.ToInt32(raw);
         }
     }
 }

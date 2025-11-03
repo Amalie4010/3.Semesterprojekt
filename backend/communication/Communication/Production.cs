@@ -10,17 +10,16 @@ namespace communication.Communication
     public class Production
     {
         private static Production? instance;
-        public static HashSet<Guid> completedCommandIds = new();
-        public static HashSet<Guid> queuedCommandIds = new();
-        public static HashSet<Guid> deletedCommandIds = new();
         public static int timeoutMs = 5000; // The timeout for any opc ua action
         public static int publishInterval = 100; // The default interval between publishes
-        private Dictionary<BeerTypes, Machine> machines = new();
+        private List<Machine> machines = new();
+        private CommandQueue cmdQueue = new CommandQueue();
+
         public PowerState State { get; private set; }
         
         private Production()
         {
-            machines.Add(BeerTypes.Pilsner, new Machine(BeerTypes.Pilsner, "opc.tcp://localhost:4840"));
+            machines.Add(new Machine("opc.tcp://localhost:4840", cmdQueue));
         }
         public static Production GetInstance()
         {
@@ -40,9 +39,8 @@ namespace communication.Communication
                  List<Task<PowerState>> connectTasks = new();
              
                  // Start async connect tasks
-                 foreach(var kvp in machines)
+                 foreach(var machine in machines)
                  {
-                     var machine = kvp.Value;
                      connectTasks.Add(machine.Connect(powerState));
                  }
             
@@ -59,9 +57,8 @@ namespace communication.Communication
                 {
                     // Reverse action if any doesnt power on to ensure continuity across all machines
                     PowerState psOpposite = powerState == PowerState.On ? PowerState.Off : PowerState.On; // Reverse the powerstate
-                    foreach (var kvp in machines)
+                    foreach (var machine in machines)
                     {
-                        var machine = kvp.Value;
                         await machine.Connect(psOpposite);
                     }
                 }
@@ -71,19 +68,19 @@ namespace communication.Communication
     
         public void NewCommand(Command command)
         {
-            machines[command.Type].EnqueueCommand(command);
+            cmdQueue.Enqueue(command);
         }
-        public void DeleteCommand(Guid id)
+        public bool DeleteCommand(Guid id)
         {
-            deletedCommandIds.Add(id);
+            return cmdQueue.Delete(id);
         }
-        public Command[] GetCurrentCommands()
+        public Command?[] GetCurrentCommands()
         {
-            return machines.Values.ToArray().Select(m => m.CurrentCommand).ToArray();
+            return machines.Select(m => m.CurrentCommand).ToArray();
         }
         public int[] GetProgress()
         {
-            return machines.Values.ToArray().Select(m => m.GetProgress()).ToArray();
+            return machines.Select(m => m.GetProgress()).ToArray();
         }
 
     }
