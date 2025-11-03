@@ -6,6 +6,7 @@ using Org.BouncyCastle.X509;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using DefaultNamespace;
 
 namespace communication.Communication
 {
@@ -26,6 +27,7 @@ namespace communication.Communication
         {
             this.beerType = beerType;
             client = new OpcClient(opcUrl);
+            // SSEMachineStatusService service = new SSEMachineStatusService(this);
         }
 
         public Machine(string opcUrl)

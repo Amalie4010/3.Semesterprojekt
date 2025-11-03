@@ -66,15 +66,15 @@ public class SSEMachineStatusService
             _status.Wheat = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Inventory.Wheat").Value);
             _status.Yeast = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Inventory.Yeast").Value);
             
-            // // MAINTENANCE
+            // MAINTENANCE
             _status.MaintenanceCount = Convert.ToInt32(_client.ReadNode("ns=6;s=::Program:Maintenance.Counter").Value);
             _status.MaintenanceState = Convert.ToByte(_client.ReadNode("ns=6;s=::Program:Maintenance.State").Value);
             _status.MaintenanceTrigger = Convert.ToInt32(_client.ReadNode("ns=6;s=::Program:Maintenance.Trigger").Value);
             
-            // // SENSOR DATA
+            //SENSOR DATA
             _status.Temperature = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Cube.Status.Parameter[0].Value").Value);
             _status.Humidity = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Cube.Status.Parameter[1].Value").Value);
-            _status.Vibration = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Cube.Status.Parameter[2].Value").Value);
+            _status.Vibration = Convert.ToSingle(_client.ReadNode("ns=6;s=::Program:Data.Value.Vibration").Value);
         }
         catch (Exception ex)
         {

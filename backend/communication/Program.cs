@@ -20,7 +20,7 @@ builder.Services.AddControllers();
  */
 
 // Register a single machine client
-var machine = new Machine("opc.tcp://localhost:4840");
+var machine = new Machine("opc.tcp://192.168.0.122:4840");
 await machine.Connect(PowerState.On); // connect once at startup
 
 // Instantiate a statusService with the machine/client
