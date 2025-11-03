@@ -1,5 +1,6 @@
 using communication.Communication;
 using communication.Dtos;
+using communication.Interfaces;
 using communication.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,17 +11,18 @@ namespace communication.Controllers
     [Route("api/communication")]
     public class MachineController : ControllerBase
     {
-        private readonly Production _production;
-        public MachineController()
+        private readonly IProduction _production;
+
+        public MachineController(IProduction? production = null)
         {
-            _production = Production.GetInstance();
+            _production = production ?? Production.GetInstance();
         }
 
         [HttpPost("power")]
         public async Task<IActionResult> Power([FromBody] PowerState power_state)
         {
-            if (_production.State == power_state)
-                return Ok(_production.State);
+            if (_production.GetState() == power_state)
+                return Ok(_production.GetState());
 
             var ps = await _production.Power(power_state);
             if (ps == power_state)
@@ -37,13 +39,13 @@ namespace communication.Controllers
         [HttpGet("power")]
         public ActionResult<PowerState> GetPower()
         {
-            return Ok(_production.State);
+            return Ok(_production.GetState());
         }
 
         [HttpPost("command")]
         public IActionResult SendCommand([FromBody] PostCommandDto commandDto)
         {
-            if (_production.State == PowerState.Off)
+            if (_production.GetState() == PowerState.Off)
             {
                 return StatusCode(429, "Production must be powered on before using this endpoint");
             }

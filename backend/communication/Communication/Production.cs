@@ -1,4 +1,5 @@
 ﻿using communication.Communication.Nodes;
+using communication.Interfaces;
 using communication.Models;
 using Opc.Ua;
 using Opc.Ua.Client;
@@ -7,15 +8,15 @@ using System;
 using System.Diagnostics;
 namespace communication.Communication
 {
-    public class Production
+    public class Production : IProduction
     {
         private static Production? instance;
-        public static int timeoutMs = 5000; // The timeout for any opc ua action
-        public static int publishInterval = 100; // The default interval between publishes
-        private List<Machine> machines = new();
+        private static int timeoutMs = 5000; // The timeout for any opc ua action
+        private static int publishInterval = 100; // The default interval between publishes
+        private List<IMachine> machines = new();
         private CommandQueue cmdQueue = new CommandQueue();
 
-        public PowerState State { get; private set; }
+        private PowerState state; 
         
         private Production()
         {
@@ -48,7 +49,7 @@ namespace communication.Communication
             
                  var results = await Task.WhenAll(connectTasks);
 
-                 State = powerState;
+                 state = powerState;
                  return powerState; // Return desired value
             } 
             catch (Exception e)
@@ -66,22 +67,13 @@ namespace communication.Communication
             }
         }
     
-        public void NewCommand(Command command)
-        {
-            cmdQueue.Enqueue(command);
-        }
-        public bool DeleteCommand(Guid id)
-        {
-            return cmdQueue.Delete(id);
-        }
-        public Command?[] GetCurrentCommands()
-        {
-            return machines.Select(m => m.CurrentCommand).ToArray();
-        }
-        public int[] GetProgress()
-        {
-            return machines.Select(m => m.GetProgress()).ToArray();
-        }
+        public void NewCommand(Command command) => cmdQueue.Enqueue(command);
+        public bool DeleteCommand(Guid id) => cmdQueue.Delete(id);
+        public Command?[] GetCurrentCommands() => machines.Select(m => m.GetCurrentCommand()).ToArray();
+        public int[] GetProgress() => machines.Select(m => m.GetProgress()).ToArray();
 
+        public static int GetTimeout() => timeoutMs;
+        public static int GetPublishInterval() => publishInterval;
+        public PowerState GetState() => state;
     }
 }

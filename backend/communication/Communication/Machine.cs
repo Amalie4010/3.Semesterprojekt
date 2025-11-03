@@ -1,4 +1,5 @@
 ﻿using communication.Communication.Nodes;
+using communication.Interfaces;
 using communication.Models;
 using Opc.Ua.Export;
 using Opc.UaFx.Client;
@@ -9,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace communication.Communication
 {
-    public class Machine
+    public class Machine : IMachine
     {
-        public readonly OpcClient client; // The acutal Opc Ua client
+        private readonly OpcClient client; // The acutal Opc Ua client
         private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore for Power method
         private CancellationTokenSource stateChangedCts = new();
         private int currentState = 0; // current PackML state
         private CommandQueue cmdQueue;
-        public Command? CurrentCommand { get; private set; }
-        public bool Connected { get; private set; }
+        private Command? CurrentCommand;
+        private bool Connected;
 
         public Machine(string opcUrl, CommandQueue cmdQueue)
         {
@@ -57,7 +58,7 @@ namespace communication.Communication
                 // Wait for connection or timeout
                 var t = await Task.WhenAny(
                     tcs.Task,
-                    Task.Delay(Production.timeoutMs)
+                    Task.Delay(Production.GetTimeout())
                     );
 
                 // Cleanup handler
@@ -89,7 +90,7 @@ namespace communication.Communication
         private void SetupSubscribtions()
         {
             // No need to save the sub, since it will be removed when connection is lost anyway
-            NodeLib.StateCurrent.AddSubscription(client, HandleStateCurrentChange, Production.publishInterval);
+            NodeLib.StateCurrent.AddSubscription(client, HandleStateCurrentChange, Production.GetPublishInterval());
         }
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
@@ -182,5 +183,7 @@ namespace communication.Communication
             ushort raw = NodeLib.ProducedAmount.Get(client);
             return Convert.ToInt32(raw);
         }
+        public bool isConnected() => Connected;
+        public Command? GetCurrentCommand() => CurrentCommand;
     }
 }
