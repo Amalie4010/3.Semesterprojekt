@@ -42,6 +42,6 @@
         public float Humidity { get; set; } = 0;
         public float Vibration { get; set; } = 0;
         
-        private MachineStatus(){}
+        public MachineStatus(){}
     }
 }
