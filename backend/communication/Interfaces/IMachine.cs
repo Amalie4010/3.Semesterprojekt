@@ -13,5 +13,7 @@ namespace communication.Interfaces
         public bool isConnected();
         public void Stop();
         public Command? GetCurrentCommand();
+        public string GetConnectionString();
+        public MachineStatus GetStatus();
     }
 }

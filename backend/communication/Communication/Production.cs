@@ -12,7 +12,7 @@ namespace communication.Communication
     {
         private static Production? instance;
         private static int timeoutMs = 5000; // The timeout for any opc ua action
-        private static int publishInterval = 100; // The default interval between publishes
+        private static int publishInterval = 1000; // The default interval between publishes
         private List<IMachine> machines = new();
         private CommandQueue cmdQueue = new CommandQueue();
 
@@ -77,5 +77,15 @@ namespace communication.Communication
         public static int GetTimeout() => timeoutMs;
         public static int GetPublishInterval() => publishInterval;
         public PowerState GetState() => state;
+        public MachineStatus GetStatus(string connectionString)
+        {
+            var machine = machines.FirstOrDefault(m => connectionString == m.GetConnectionString());
+            if (machine == null)
+            {
+                throw new Exception();
+            }
+
+            return machine.GetStatus();
+        }
     }
 }

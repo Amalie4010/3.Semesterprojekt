@@ -3,6 +3,7 @@ using communication.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using communication.Communication;
 
 namespace DefaultNamespace
 {
@@ -24,20 +25,21 @@ namespace DefaultNamespace
         }
 
         // GET method for the endpoint with EmptyResult. EmptyResult returns no specific data at the end of the session
-        [HttpGet]
+        [HttpGet("{connectionString}")]
         
         /*
          * Cancellation token makes it possible so when the user closes the browser
          * that request should stop, otherwise the server keeps looping forever
          */
-        public async Task<EmptyResult> GetMachineStatus(CancellationToken cancellationToken) 
+        public async Task<EmptyResult> GetMachineStatus(string connectionString, CancellationToken cancellationToken) 
         {
+            Production production = Production.GetInstance();
             // Return an SSE stream as an IAsyncEnumerable
             //IAsyncEnumaerable makes it possible to instead of returning all data at once, it returns items one by one like SSE does
             async IAsyncEnumerable<string> SseMachineStatus([EnumeratorCancellation] CancellationToken ct)
             {
                 //Instantiate singleton machinestatus
-                var machineStatus = MachineStatus.GetInstance();
+                var machineStatus = production.GetStatus(connectionString);
 
                 // Loop until the client disconnects
                 while (!ct.IsCancellationRequested)

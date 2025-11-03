@@ -1,6 +1,7 @@
 ﻿using communication.Communication.Nodes;
 using communication.Interfaces;
 using communication.Models;
+using DefaultNamespace;
 using Opc.Ua.Export;
 using Opc.UaFx.Client;
 using Org.BouncyCastle.X509;
@@ -13,22 +14,23 @@ namespace communication.Communication
     public class Machine : IMachine
     {
         private readonly OpcClient client; // The acutal Opc Ua client
+        private readonly string port;
         private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore for Power method
         private CancellationTokenSource stateChangedCts = new();
         private int currentState = 0; // current PackML state
         private CommandQueue cmdQueue;
         private Command? CurrentCommand;
         private bool Connected;
+        private SSEMachineStatusService SSE;
+        private Timer t;
 
         public Machine(string opcUrl, CommandQueue cmdQueue)
         {
             this.cmdQueue = cmdQueue;
+            port = "4840";
             client = new OpcClient(opcUrl);
-        }
-
-        public Machine(string opcUrl)
-        {
-            client = new OpcClient(opcUrl);
+            SSE = new(this);
+            t = new System.Threading.Timer(_ => SSE.UpdateStatus(), null, 0, Production.GetPublishInterval());
         }
         public async Task<PowerState> Connect(PowerState powerState)
         {
@@ -95,6 +97,7 @@ namespace communication.Communication
         {
             // No need to save the sub, since it will be removed when connection is lost anyway
             NodeLib.StateCurrent.AddSubscription(client, HandleStateCurrentChange, Production.GetPublishInterval());
+
         }
         private void HandleStateCurrentChange(object sender, OpcDataChangeReceivedEventArgs e)
         {
@@ -151,7 +154,6 @@ namespace communication.Communication
                 }
             }
         }
-
         private async Task HandleIdle()
         {
 
@@ -194,5 +196,8 @@ namespace communication.Communication
         }
         public bool isConnected() => Connected;
         public Command? GetCurrentCommand() => CurrentCommand;
+        public OpcClient GetClient() => client;
+        public MachineStatus GetStatus() => SSE.GetStatus();
+        public string GetConnectionString() => port;
     }
 }

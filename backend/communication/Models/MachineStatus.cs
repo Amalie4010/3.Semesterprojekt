@@ -5,7 +5,6 @@
         /***********
          THIS CLASS IS A MODEL FOR THE MACHINES STATUS AND HOLDS ALL DATA FOR THE RELEVANT STATUS OF THE MACHINE
          ***********/
-
         public PowerState PowerState { get; set; } = PowerState.Off;
         
         // MACHINE STATUS
@@ -42,6 +41,8 @@
         public float Humidity { get; set; } = 0;
         public float Vibration { get; set; } = 0;
         
-        public MachineStatus(){}
+        public MachineStatus()
+        {
+        }
     }
 }

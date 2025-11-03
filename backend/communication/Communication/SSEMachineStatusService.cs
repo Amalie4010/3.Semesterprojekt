@@ -16,21 +16,22 @@ public class SSEMachineStatusService
       ***********/
 
     private readonly Machine _machine;
-    private readonly MachineStatus _status;
+    private readonly MachineStatus _status = new();
 
     //Constructor to initiate machine client
     public SSEMachineStatusService(Machine machine)
     {
         _machine = machine;
-        _status = MachineStatus.GetInstance();
     }
+    public MachineStatus GetStatus() => _status;
 
     //Method to read from client the latest information about the beer machine
     public void UpdateStatus()
     {
         try
         {
-            if (_machine.client == null || !_machine.Connected)
+            var _client = _machine.GetClient();
+            if (_client == null || !_machine.isConnected())
             {
                 Console.WriteLine("Machine client not connected yet!");
                 return;
@@ -38,7 +39,6 @@ public class SSEMachineStatusService
 
             //.client after _machine is the actual UPC UA Client that is connected to the beer machine.
             //Im accesing it via a readonly object that is stored in mahine class.
-            var _client = _machine.client;
 
             /* Get info about the beer machine via ReadNode method that Opc UA Client has and store them in machineStatus
             them to MachineStatus model

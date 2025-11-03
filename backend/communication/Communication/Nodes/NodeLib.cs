@@ -27,12 +27,12 @@
         public static readonly OpcNode<float> Malt = new("ns=6;s=::Program:Inventory.Malt");
         public static readonly OpcNode<float> Wheat = new("ns=6;s=::Program:Inventory.Wheat");
         public static readonly OpcNode<float> Yeast = new("ns=6;s=::Program:Inventory.Yeast");
-        public static readonly OpcNode<int> MaintenanceCount = new("ns=6;s=::Program:Maintenance.Counter");
+        public static readonly OpcNode<ushort> MaintenanceCount = new("ns=6;s=::Program:Maintenance.Counter");
         public static readonly OpcNode<byte> MaintenanceState = new("ns=6;s=::Program:Maintenance.State");
-        public static readonly OpcNode<int> MaintenanceTrigger = new("ns=6;s=::Program:Maintenance.Trigger");
-        public static readonly OpcNode<int> ProductBad = new("ns=6;s=::Program:product.bad");
-        public static readonly OpcNode<int> ProductGood = new("ns=6;s=::Program:product.good");
-        public static readonly OpcNode<int> ProduceTargetAmount = new("ns=6;s=::Program:product.produce_amount");
-        public static readonly OpcNode<int> ProducedAmount = new("ns=6;s=::Program:product.produced");
+        public static readonly OpcNode<ushort> MaintenanceTrigger = new("ns=6;s=::Program:Maintenance.Trigger");
+        public static readonly OpcNode<ushort> ProductBad = new("ns=6;s=::Program:product.bad");
+        public static readonly OpcNode<ushort> ProductGood = new("ns=6;s=::Program:product.good");
+        public static readonly OpcNode<ushort> ProduceTargetAmount = new("ns=6;s=::Program:product.produce_amount");
+        public static readonly OpcNode<ushort> ProducedAmount = new("ns=6;s=::Program:product.produced");
     }
 }
