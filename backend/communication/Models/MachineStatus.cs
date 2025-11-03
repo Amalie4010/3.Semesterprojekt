@@ -5,7 +5,6 @@
         /***********
          THIS CLASS IS A MODEL FOR THE MACHINES STATUS AND HOLDS ALL DATA FOR THE RELEVANT STATUS OF THE MACHINE
          ***********/
-        private readonly static MachineStatus instance = new();
 
         public PowerState PowerState { get; set; } = PowerState.Off;
         
@@ -44,9 +43,5 @@
         public float Vibration { get; set; } = 0;
         
         private MachineStatus(){}
-        public static MachineStatus GetInstance()
-        {
-            return instance;
-        }
     }
 }
