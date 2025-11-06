@@ -6,6 +6,8 @@ using Opc.Ua.Client;
 using Opc.UaFx.Client;
 using System;
 using System.Diagnostics;
+using Org.BouncyCastle.Tls;
+
 namespace communication.Communication
 {
     public class Production : IProduction
@@ -20,7 +22,6 @@ namespace communication.Communication
         
         private Production()
         {
-            machines.Add(new Machine("opc.tcp://localhost:4840", cmdQueue));
         }
         public static Production GetInstance()
         {
@@ -68,7 +69,6 @@ namespace communication.Communication
                 throw; // Rethrow to handle in controller
             }
         }
-    
         public void NewCommand(Command command) => cmdQueue.Enqueue(command);
         public bool DeleteCommand(Guid id) => cmdQueue.Delete(id);
         public Command?[] GetCurrentCommands() => machines.Select(m => m.GetCurrentCommand()).ToArray();
@@ -77,14 +77,18 @@ namespace communication.Communication
         public static int GetTimeout() => timeoutMs;
         public static int GetPublishInterval() => publishInterval;
         public PowerState GetState() => state;
+        
+        public void MakeNewMachine(string connectionString)
+        {
+            machines.Add(new Machine(connectionString, cmdQueue));
+        }
         public MachineStatus GetStatus(string connectionString)
         {
             var machine = machines.FirstOrDefault(m => connectionString == m.GetConnectionString());
             if (machine == null)
             {
-                throw new Exception();
+                throw new Exception($"No machine found with connection string '{connectionString}'");
             }
-
             return machine.GetStatus();
         }
     }

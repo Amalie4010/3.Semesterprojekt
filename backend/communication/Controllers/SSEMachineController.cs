@@ -13,34 +13,34 @@ namespace DefaultNamespace
     {
         /**********
          THIS CLASS IS THE ENDPOINT FOR SSE
-         
+
          READ THIS IF YOU WANT TO FULLY UNDERSTAND HOW SSE WORKS IN C#
          https://dev.to/mayank_agarwal/implementing-real-time-updates-with-server-sent-events-sse-in-c-net-a-complete-guide-248l
         ***********/
-       
-        
+
+
         // Constructor
         public SSEMachineController()
         {
         }
 
         // GET method for the endpoint with EmptyResult. EmptyResult returns no specific data at the end of the session
-        [HttpGet("{connectionString}")]
-        
         /*
          * Cancellation token makes it possible so when the user closes the browser
          * that request should stop, otherwise the server keeps looping forever
          */
-        public async Task<EmptyResult> GetMachineStatus(string connectionString, CancellationToken cancellationToken) 
+        [HttpGet]
+        public async Task<EmptyResult> GetMachineStatus([FromQuery] string connectionString,
+            CancellationToken cancellationToken)
         {
             Production production = Production.GetInstance();
+
             // Return an SSE stream as an IAsyncEnumerable
             //IAsyncEnumaerable makes it possible to instead of returning all data at once, it returns items one by one like SSE does
             async IAsyncEnumerable<string> SseMachineStatus([EnumeratorCancellation] CancellationToken ct)
             {
                 //Instantiate singleton machinestatus
                 var machineStatus = production.GetStatus(connectionString);
-
                 // Loop until the client disconnects
                 while (!ct.IsCancellationRequested)
                 {
@@ -59,22 +59,22 @@ namespace DefaultNamespace
 
             // Return the stream as an SSE response . Need this for the browser to know its SSE
             Response.Headers.Add("Content-Type", "text/event-stream");
-            
+
             //CAlls the SseMachineStatus Method
             await foreach (var item in SseMachineStatus(cancellationToken))
             {
                 //Item is the chunks of data that is sent everytime time in sse
                 await Response.WriteAsync(item);
                 await Response.Body.FlushAsync();
-                
+
                 /*
                  When you send data with Response.WriteAsync(item),
                  c# stores it in an buffer before sending it
-                 and for SSE, we need each message to arrive immediately so the method 
+                 and for SSE, we need each message to arrive immediately so the method
                  FlushAsync sends the data immediatly instead of storing it in the buffer
                  */
             }
-            
+
             //Returns nothing if the connection is lost
             return new EmptyResult();
         }
