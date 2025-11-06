@@ -16,3 +16,13 @@ Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])-
 Route::get('/attendee', function () { 
     return view('attendee');
 }) -> name('goto.attendee');
+
+Route::get('/login', function (){
+    return view('login');
+})->name('goto.login');
+
+Route::get('/register', function(){
+    return view('register');
+})->name('goto.register');
+
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt'); 

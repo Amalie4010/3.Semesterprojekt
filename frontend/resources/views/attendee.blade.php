@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{{asset('css/attendeePage.css')}}">
-    <script src="{{ asset('js/attendee.js') }}" defer></script>
 </head>
 <body>
     <h1>Order your beer</h1>
