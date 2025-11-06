@@ -11,9 +11,18 @@
         <h1 class="text">Log In</h1>
         <form method="post" action="{{route('login.attempt')}}">
         @csrf
-        <input type="email" placeholder="Email" >
+        @if($errors->any())
+            <div>
+                <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{$error}}</li>
+                @endforeach
+                </ul>
+            </div>
+        @endif
+        <input type="email" name="email" autocomplete="something@gmail.com" placeholder="Email" >
         <br>
-        <input type="password" placeholder="Password" >
+        <input type="password" name="password" placeholder="Password" >
         <br>
         <button type="submit">Login</button>
         </form>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 
 
 class LoginController extends Controller
@@ -25,7 +27,8 @@ class LoginController extends Controller
         // "return back()", people are sent back to the login page, "withErrors" sends a ErrorMessage
         return back()->withErrors([ // failed login attempt
             'email' => 'The provided credentials do not match our records.', // "email" the field that recieves the message, and the other part is the message itself
-        ])->onlyInput('email'); // keeps the email the user typed, meaning the password field will become empty
+            
+        ]) ->onlyInput('email'); // keeps the email the user typed, meaning the password field will become empty
     
     }
 }

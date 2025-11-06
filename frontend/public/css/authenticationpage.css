@@ -1,6 +1,6 @@
 
 body{
-    background-color: #717e74;
+    background-color: rgb(219, 244, 225)
 }
 
 
@@ -10,8 +10,8 @@ body{
     flex-direction: column;
     border: 2px black solid;
     border-radius: 10px;
-    border-color: #2a362d;
-    background-color: #2a362d;
+    border-color: #535e68;
+    background-color: #535e68;
     height: 700px;
     align-items: center;
 
