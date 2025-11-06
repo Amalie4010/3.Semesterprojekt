@@ -8,7 +8,8 @@ const db = new sqlite3.Database('./database/event.db');
 let comand = `CREATE TABLE IF NOT EXISTS current_event (
 	id INTEGER PRIMARY KEY,
 	beer_type INTEGER NOT NULL,
-  amount INTEGER NOT NULL
+  	amount INTEGER NOT NULL,
+	order_group INTEGER NOT NULL
 );`;
 
 // Execute the command
