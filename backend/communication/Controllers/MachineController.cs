@@ -75,5 +75,12 @@ namespace communication.Controllers
         {
             return _production.GetProgress();
         }
+
+        [HttpPost("machine")]
+        public IActionResult MakeMachine([FromBody] string connectionString)
+        {
+            _production.MakeNewMachine(connectionString);
+            return Ok();
+        }
     }
 }

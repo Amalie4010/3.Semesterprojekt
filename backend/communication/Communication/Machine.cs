@@ -14,7 +14,7 @@ namespace communication.Communication
     public class Machine : IMachine
     {
         private readonly OpcClient client; // The acutal Opc Ua client
-        private readonly string port;
+        private readonly string connectionString;
         private readonly SemaphoreSlim connectSemaphore = new SemaphoreSlim(1, 1); // semaphore for Power method
         private CancellationTokenSource stateChangedCts = new();
         private int currentState = 0; // current PackML state
@@ -27,8 +27,8 @@ namespace communication.Communication
         public Machine(string opcUrl, CommandQueue cmdQueue)
         {
             this.cmdQueue = cmdQueue;
-            port = "4840";
             client = new OpcClient(opcUrl);
+            this.connectionString = opcUrl;
             SSE = new(this);
             t = new System.Threading.Timer(_ => SSE.UpdateStatus(), null, 0, Production.GetPublishInterval());
         }
@@ -198,6 +198,6 @@ namespace communication.Communication
         public Command? GetCurrentCommand() => CurrentCommand;
         public OpcClient GetClient() => client;
         public MachineStatus GetStatus() => SSE.GetStatus();
-        public string GetConnectionString() => port;
+        public string GetConnectionString() => connectionString;
     }
 }
