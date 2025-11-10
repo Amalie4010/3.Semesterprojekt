@@ -39,7 +39,8 @@ namespace communication.Controllers
         [HttpGet("power")]
         public ActionResult<PowerState> GetPower()
         {
-            return Ok(_production.GetState());
+            var res = _production.GetState();
+            return Ok(res);
         }
 
         [HttpPost("command")]
