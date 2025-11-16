@@ -2,13 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\MachineController;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
 
 /* When you call the api from frontend REMEMBER!!!!! to have /api at front of /order.. like this http://localhost:8000/api/order
 Because /api is prefixed in api routes file */
 
-// operator page start
+/* operator page start 
 
 Route::get('/operator/status', function () {
     // Example dynamic data — replace with DB or C# layer input
@@ -29,7 +30,7 @@ Route::post('/operator/stop', function () {
     return response()->json(['message' => 'Machine stopped']);
 });
 
-// Operator page done
+*///Operator page done
 
 Route::get('/api/orders', [OrderController::class, 'getOrders']);
 Route::post('/api/order', [OrderController::class, 'createOrder']);
@@ -37,11 +38,9 @@ Route::get('/', function () {
     return view('index');
 }) -> name('index');
 Route::get('/operator', function () {
-    return view('operator');
+    return view('machine');
 }) -> name('operator');
-Route::get('/attendee', function () {
-    return view('attendee');
-}) -> name('attendee');
+
 Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);
 
 Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])->name('order.makeOrder');
@@ -51,3 +50,6 @@ Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])-
 Route::get('/attendee', function () { 
     return view('attendee');
 }) -> name('goto.attendee');
+
+// Frontend operator
+Route::post('/connect', [MachineController::class, 'connect'])->name('connect');

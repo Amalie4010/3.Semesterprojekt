@@ -4,7 +4,7 @@
   <div class="container">
     <div class="section">
       <p>Attendee Landpage</p>
-      <a href="{{ route('attendee')}}" >
+      <a href="{{ route('goto.attendee')}}" >
       <button>Continue as Attendee</button>
       </a>
     </div>
