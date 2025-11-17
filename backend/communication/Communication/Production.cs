@@ -82,6 +82,10 @@ namespace communication.Communication
         {
             machines.Add(new Machine(connectionString, cmdQueue));
         }
+        public void MakeNewMachine(IMachine machine)
+        {
+            machines.Add(machine);
+        }
         public MachineStatus GetStatus(string connectionString)
         {
             var machine = machines.FirstOrDefault(m => connectionString == m.GetConnectionString());

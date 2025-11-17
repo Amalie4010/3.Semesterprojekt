@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use Illuminate\Routing\Controllers\Middleware;
-use App\Http\Controllers\LoginController;
 
 /* When you call the api from frontend REMEMBER!!!!! to have /api at front of /order.. like this http://localhost:8000/api/order
 Because /api is prefixed in api routes file */

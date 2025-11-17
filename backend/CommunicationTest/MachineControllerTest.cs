@@ -193,6 +193,16 @@ namespace CommunicationTest
             return ps;
         }
 
+        public MachineStatus GetStatus(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MakeNewMachine(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
         public void NewCommand(Command command)
         {
             commands.Add(command);
