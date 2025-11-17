@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MachineController;
 use Illuminate\Routing\Controllers\Middleware;
+use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
 
 /* When you call the api from frontend REMEMBER!!!!! to have /api at front of /order.. like this http://localhost:8000/api/order
@@ -53,3 +54,13 @@ Route::get('/attendee', function () {
 
 // Frontend operator
 Route::post('/connect', [MachineController::class, 'connect'])->name('connect');
+
+Route::get('/login', function (){
+    return view('login');
+})->name('goto.login');
+
+Route::get('/register', function(){
+    return view('register');
+})->name('goto.register');
+
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt'); 
