@@ -31,20 +31,20 @@ Route::post('/operator/stop', function () {
     return response()->json(['message' => 'Machine stopped']);
 });
 
-*///Operator page done
+*/ //Operator page done
 
 Route::get('/api/orders', [OrderController::class, 'getOrders']);
 Route::post('/api/order', [OrderController::class, 'createOrder']);
 Route::get('/', function () {
     return view('index');
-}) -> name('index');
+})->name('index');
 Route::get('/machine', function () {
     return view('machine');
-}) -> name('machine');
+})->name('machine');
 
 Route::get('/operator', function () {
     return view('machine');
-}) -> name('operator');
+})->name('operator');
 
 Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);
 
@@ -52,20 +52,20 @@ Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])-
 
 
 /* Routes for event attendee dynamic views */
-Route::get('/attendee', function () { 
+Route::get('/attendee', function () {
     return view('attendee');
-}) -> name('goto.attendee');
+})->name('goto.attendee');
 
 // Frontend operator
 Route::post('/connect', [MachineController::class, 'connectToMachine'])->name('connect');
 Route::post('/power', [MachineController::class, 'Power'])->name('Power');
 
-Route::get('/login', function (){
+Route::get('/login', function () {
     return view('login');
 })->name('goto.login');
 
-Route::get('/register', function(){
+Route::get('/register', function () {
     return view('register');
 })->name('goto.register');
 
-Route::post('/login', [LoginController::class, 'login'])->name('login.attempt'); 
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');

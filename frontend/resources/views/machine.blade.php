@@ -1,13 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
+
 <form action="{{route('connect')}}" method="post">
     @csrf
     @method('post')
     <input type="text"
-    id="text"
-    name="connectionStr"
-    placeholder="Con String">
+        id="text"
+        name="connectionStr"
+        placeholder="Con String">
     <button type="submit">Submit</button>
 </form>
 
@@ -15,14 +16,14 @@
     @csrf
     @method('post')
     <input type="number"
-    id="state"
-    name="-d"
-    placeholder="PowerNr">
+        id="state"
+        name="d"
+        placeholder="PowerNr">
     <button type="submit">Submit</button>
 </form>
-    <h1 class="text-3xl font-bold mb-6">Machine Monitor</h1>
-    <div class="container">
-        <!-- Popup -->
+<h1 class="text-3xl font-bold mb-6">Machine Monitor</h1>
+<div class="container">
+    <!-- Popup -->
     <div id="popup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-2xl shadow-lg w-96">
             <h2 class="text-xl font-semibold mb-4">Enter Connection String</h2>
@@ -38,6 +39,6 @@
             <pre id="machineData" class="bg-gray-200 p-3 rounded text-sm overflow-auto h-96">Waiting for data...</pre>
         </div>
     </div>
-    </div>
-    
+</div>
+
 @endsection

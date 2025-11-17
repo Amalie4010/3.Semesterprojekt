@@ -7,69 +7,52 @@ use Illuminate\Support\Facades\Http;
 
 class MachineController extends Controller
 {
+
     public function machine()
     {
         return view('index');
     }
-public function connectToMachine(Request $request){
-    $request->validate([
-            'connectionStr => required|string',
-        ]);
-
-        $temp = $request->input('text');
-
-        //Encode the temp string
-        $encoded = str_replace("/", "%2F", $temp);
-        $encoded = str_replace(":", "%3A", $temp);
-
-        $response = Http::post('http://localhost:5139/api/communication/machine', [
-        'connectionStr' => $encoded
-        ]);
-
-        return view('machine');
-}
-
-public function Power(Request $request){
-    $request->validate([
-            '-d => required|number',
-        ]);
-
-        $state = $request->input('state');
-        $response = Http::post('http://localhost:5139/api/communication/power', [
-        '-d' => $state
-        ]);
-
-        return view('machine');
-}
-
-    public function connect(Request $request)
+    public function connectToMachine(Request $request)
     {
         $request->validate([
-            'connectionString => required|string',
+            'connectionStr' => 'required|string',
         ]);
 
-        $connectionString = $request->input('connectionString');
+        $connectionStr = $request->input('connectionStr');
 
-        // Send connectionstring to communication
-
-        //debug
-        $apiUrl = "http://localhost:5139/api/communication/machine";
-
+        // Sends json 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json'
-        ])->post($apiUrl, $connectionString);
-        //$response = Http::post('http://localhost:5139/api/communication/machine', urlencode(json_encode($connectionString)));
-         
+        ])->send('POST', 'http://localhost:5139/api/communication/machine', [
+            'body' => json_encode($connectionStr)
+        ]);
 
-        //if ($response->failed()) {            return response()->json(['error' => 'Failed to connect to backend'], 500);}
-            if ($response->failed()) {
-            return response()->json([
-                'success' => false,
-                'error' => $response->body()
-            ], 500);
+        if ($response->failed()) {
+            return back()->with('error', $response->body());
         }
 
-        return response()->json(['success' => true]);
+        return back()->with('success', 'Connected successfully!');
     }
 
+    public function Power(Request $request)
+    {
+        $request->validate([
+            'd' => 'required|integer',
+        ]);
+
+        $state = (int)$request->input('d');
+
+        // Send Json in the body 
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->send('POST', 'http://localhost:5139/api/communication/power', [
+            'body' => json_encode($state)  //sends the state/ should be one for activating the api to connect to OPC UA machine
+        ]);
+
+        if ($response->failed()) {
+            return back()->with('error', $response->body());
+        }
+
+        return back()->with('success', 'Power state changed! Response: ' . $response->body());
+    }
 }
