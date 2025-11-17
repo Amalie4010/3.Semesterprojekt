@@ -38,6 +38,10 @@ Route::post('/api/order', [OrderController::class, 'createOrder']);
 Route::get('/', function () {
     return view('index');
 }) -> name('index');
+Route::get('/machine', function () {
+    return view('machine');
+}) -> name('machine');
+
 Route::get('/operator', function () {
     return view('machine');
 }) -> name('operator');
@@ -53,7 +57,8 @@ Route::get('/attendee', function () {
 }) -> name('goto.attendee');
 
 // Frontend operator
-Route::post('/connect', [MachineController::class, 'connect'])->name('connect');
+Route::post('/connect', [MachineController::class, 'connectToMachine'])->name('connect');
+Route::post('/power', [MachineController::class, 'Power'])->name('Power');
 
 Route::get('/login', function (){
     return view('login');

@@ -1,6 +1,25 @@
 @extends('layouts.app')
 
 @section('content')
+<form action="{{route('connect')}}" method="post">
+    @csrf
+    @method('post')
+    <input type="text"
+    id="text"
+    name="connectionStr"
+    placeholder="Con String">
+    <button type="submit">Submit</button>
+</form>
+
+<form action="{{route('Power')}}" method="post">
+    @csrf
+    @method('post')
+    <input type="number"
+    id="state"
+    name="-d"
+    placeholder="PowerNr">
+    <button type="submit">Submit</button>
+</form>
     <h1 class="text-3xl font-bold mb-6">Machine Monitor</h1>
     <div class="container">
         <!-- Popup -->
