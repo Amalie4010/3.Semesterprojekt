@@ -1,11 +1,9 @@
 import sqlite3
-
-# This script needs to know which order_group is the current one
-group = 2
+import numpy
+import matplotlib.pyplot as plot
 
 # Connect to sqlite3 database containing past event data
 db_path = 'backend\statistics\database\event.db'
-
 db_connection = sqlite3.connect(db_path)
 
 # The cursor is used to execute the sql querries to read the data needed for the analysis
@@ -13,7 +11,6 @@ cursor = db_connection.cursor()
 
 
 # Extract the relevant rows of data for the past events
-
 table_name = 'past_events'
 amount_dict = {}
 
@@ -28,11 +25,20 @@ for group in groups:
     for row in rows: #Add all the amounts together
         total += row[0]
         print(total)
-    amount_dict[f'{group}'] = total
+    amount_dict[group] = total #Creates a dictionary where each order group has a corresponding amount
+
+
+x = list(amount_dict.keys())
+y = list(amount_dict.values())
+
+poly = numpy.poly1d(numpy.polyfit(x, y, 3))
+
+function_line = numpy.linspace(min(x), max(x), 100)
+
+plot.scatter(x, y)
+plot.plot(function_line, poly(function_line))
+plot.show()
 
 print(amount_dict)
 
-
-
-
-db_connection.close() #Close connection (very important!))
+db_connection.close() #Close connection 
