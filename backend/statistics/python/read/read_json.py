@@ -6,14 +6,13 @@ import math
 from .beer_data import beer_data
 from .data_points import data_points
 
-def read_json():
-    data = []
-    data_all = []
-    types_set = set()
+def read_json() -> tuple[list[int], list[list[int]], list[int]]:
+    types_set: set[int] = set()
+    data_sorted: list[list[int]] = []
+    data_all: list[int] = []
 
     if len(sys.argv) > 1: # Makes sure there is data
-        input_json = sys.argv[1]
-        data_list = json.loads(input_json)
+        data_list = json.loads(sys.argv[1])
 
         if (data_list.__len__() >= 1):
             # checks the types
@@ -24,15 +23,15 @@ def read_json():
 
             # adds the appropriate amount of lists in the data list
             for type in types:
-                data.append([])
+                data_sorted.append([])
 
             for new_data in data_list:
                 new_type, new_quantity, new_time = beer_data(new_data)
-                
+
                 data_points(data_all, new_time, new_quantity)
 
                 placement = types.index(new_type)
-                data_points(data[placement], new_time, new_quantity)
+                data_points(data_sorted[placement], new_time, new_quantity)
 
-    return types, data, data_all
+    return types, data_sorted, data_all
     

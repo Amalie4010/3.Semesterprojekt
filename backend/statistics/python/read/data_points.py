@@ -1,4 +1,4 @@
-def data_points(data, time, quantity):
+def data_points(data: list, time: int, quantity: int):
     # i make a point for every minut, so if multible orders where made within the same minut 
     # the quantity will be added to the existing minut.    
 
