@@ -3,8 +3,8 @@ import sys
 import json
 import math
 
-from beer_data import beer_data
-from data_points import data_points
+from .beer_data import beer_data
+from .data_points import data_points
 
 def read_json():
     data = []
