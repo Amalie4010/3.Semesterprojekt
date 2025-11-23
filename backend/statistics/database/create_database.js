@@ -20,6 +20,12 @@ db.exec(`CREATE TABLE IF NOT EXISTS past_events (
     order_group INTEGER NOT NULL
 );`);
 
+//Creates table for prediction formula based on old events
+db.exec(`CREATE TABLE IF NOT EXISTS prediction_formula (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    coefficients TEXT NOT NULL
+);`);
+
 
 db.exec('INSERT INTO past_events (beer_type, amount, order_group) VALUES (1,10,1)');
 db.exec('INSERT INTO past_events (beer_type, amount, order_group) VALUES (2,3,1)');

@@ -1,4 +1,5 @@
 import sqlite3
+import json
 import numpy
 import matplotlib.pyplot as plot
 
@@ -24,7 +25,6 @@ for group in groups:
     rows = cursor.fetchall()
     for row in rows: #Add all the amounts together
         total += row[0]
-        print(total)
     amount_dict[group] = total #Creates a dictionary where each order group has a corresponding amount
 
 
@@ -37,8 +37,11 @@ function_line = numpy.linspace(min(x), max(x), 100)
 
 plot.scatter(x, y)
 plot.plot(function_line, poly(function_line))
-plot.show()
+#plot.show() # !!! REMOVE THIS LINE BEFORE RELEASE - IT FREEZES THE PROGRAM CAUSE THE THREAD CAN'T CONTINUE BEFORE POP-UP IS CLOSED !!!
 
-print(amount_dict)
+# Store coefficients in db
+coef = poly.c.tolist()
+cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c, d]
 
-db_connection.close() #Close connection 
+db_connection.commit()
+db_connection.close()
