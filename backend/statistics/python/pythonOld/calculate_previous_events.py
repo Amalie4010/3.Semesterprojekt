@@ -2,6 +2,7 @@ import sqlite3
 import json
 import numpy
 import matplotlib.pyplot as plot
+import predict_next_old as predict
 
 # Connect to sqlite3 database containing past event data
 db_path = 'backend\statistics\database\event.db'
@@ -37,11 +38,17 @@ function_line = numpy.linspace(min(x), max(x), 100)
 
 plot.scatter(x, y)
 plot.plot(function_line, poly(function_line))
-#plot.show() # !!! REMOVE THIS LINE BEFORE RELEASE - IT FREEZES THE PROGRAM CAUSE THE THREAD CAN'T CONTINUE BEFORE POP-UP IS CLOSED !!!
+plot.show() # !!! REMOVE THIS LINE BEFORE RELEASE - IT FREEZES THE PROGRAM CAUSE THE THREAD CAN'T CONTINUE BEFORE POP-UP IS CLOSED !!!
 
 # Store coefficients in db
 coef = poly.c.tolist()
 cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c, d]
 
 db_connection.commit()
+
+predict.predict(2)
+
 db_connection.close()
+
+
+
