@@ -10,7 +10,7 @@
     </div>
     <div class="section">
       <p>Operator Landpage</p>
-      <a href="{{ route('operator')}}" >
+      <a href="{{ route('goto.login')}}" >
       <button>Continue as Operator</button>
       </a>
     </div>
