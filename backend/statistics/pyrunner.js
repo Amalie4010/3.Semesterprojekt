@@ -81,7 +81,7 @@ pythonProcess.on("close", (code) => {
   console.log(`Python process exited with code ${code}`);
 });
 
-fs.writeFileSync('orders.json', JSON.stringify([]));
+//fs.writeFileSync('/backend/statistics/orders.json', JSON.stringify([]));
 }
 
 
