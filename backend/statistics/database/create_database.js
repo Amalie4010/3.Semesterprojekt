@@ -7,13 +7,13 @@ const dbPath = path.join(__dirname, 'event.db');
 const db = new sqlite3.Database(dbPath);
 
 //Creates a table for the current event
-let comand = `CREATE TABLE IF NOT EXISTS current_event (
+db.exec(`CREATE TABLE IF NOT EXISTS current_event (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	beer_type INTEGER NOT NULL,
   	amount_produced INTEGER NOT NULL,
 	amount_ordered INTEGER NOT NULL,
 	order_group INTERGER
-);`;
+);`);
 
 //Creates table for the past events
 db.exec(`CREATE TABLE IF NOT EXISTS past_events (
