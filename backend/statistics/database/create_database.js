@@ -1,16 +1,19 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
 
-//Create the current event database
-const db = new sqlite3.Database('backend/statistics/database/event.db');
+//Create the database
+const __dirname = path.resolve('backend/statistics/database');
+const dbPath = path.join(__dirname, 'event.db');
+const db = new sqlite3.Database(dbPath);
 
 //Creates a table for the current event
-db.exec(`CREATE TABLE IF NOT EXISTS current_event ( 
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    beer_type INTEGER NOT NULL,
-    amount INTEGER NOT NULL,
-    order_group INTEGER NOT NULL
-);`);
+let comand = `CREATE TABLE IF NOT EXISTS current_event (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	beer_type INTEGER NOT NULL,
+  	amount_produced INTEGER NOT NULL,
+	amount_ordered INTEGER NOT NULL,
+	order_group INTERGER
+);`;
 
 //Creates table for the past events
 db.exec(`CREATE TABLE IF NOT EXISTS past_events (

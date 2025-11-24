@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def beer_data(data):
+def beer_data(data) -> tuple[int, int, int]:
     type = data["beer_type"]
     quantity = data["quantity"]
     # Convert createdAt to datetime, then to unix timestamp (in minuts), then round to the closest minut

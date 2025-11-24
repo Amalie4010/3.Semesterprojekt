@@ -1,58 +1,55 @@
-from datetime import datetime
-from scipy import stats
-import math
+# Import libary
+import sys
 
-from read_json import read_json # Imports the function read_json
-from calculate_amount import calculate_amount
-from calculate_minutes_past import calculate_minutes_past
-print("")
+# Import own funcitons
+from read.read_json import format_json
 
-prediction = 0
-slope = 0
-speed = [125, 0, 30, 200, 0, 10]
-produce = {}
+from database.query import insert
 
-# Uses the function read_json
-types, data, data_all = read_json() 
+from live_analasis.prediction import calculate_prediction
+from live_analasis.linear import linear_regression
+from live_analasis.prediction_error import prediction_error
+# ------------------------------------------------------------------- #
 
-# all beer ---------------------------------------------------
+# Order group is used for analasys of old data
+order_group = int(sys.argv[2])
 
-x_data = []
-y_data = []
+# Read and sort the orders.
+types, data_sorted, data_all = format_json() 
 
-for item in data_all:
-    x_data.append(item["x"])
-    y_data.append(item["y"])
+# Make linaer regression on all the beer orders
+slope = linear_regression(data_all)
 
-if (data_all.__len__() > 1):
-    # linear reggression
-    slope, intercept, r, p, std_err = stats.linregress(x_data, y_data)
+# Predict the next 5 minutes, based on the orders just made
+# Makes a dictionary of both the predictions and the actural orders
+# dict[beer_type, amount]
+ordered_data, prediction_data = calculate_prediction(types, data_sorted, slope)
 
-amount = calculate_amount(y_data)
-print("prediction for all: ", amount+amount*slope)
+# Corrects the predictions based on earlier prediction errors
+prediction_error(order_group, prediction_data)
 
-# all beer ---------------------------------------------------
+# Speed per beer type
+speed = {
+    0 : 125, 
+    1 : 10, 
+    2 : 30, 
+    3 : 200, 
+    4 : 30, 
+    5 : 10
+}
 
+# Make json and insert in database
+if (prediction_data.__len__() > 1):
+    prediction_keys = prediction_data.keys()
 
-# per beer type ---------------------------------------------
-for type in types:
-    amount = 0
-    for item in data[types.index(type)]:
-        amount += item["y"]
+    for key in prediction_keys:
+        # Insert in database
+        insert(key, prediction_data[key], ordered_data[key], order_group)
 
-    prediction = amount+amount*slope
-    prediction = math.ceil(prediction)
-
-    print("beer type:", type)
-    print("Beers ordered:", amount)
-
-    produce = {
-        "beer_type" : type,
-        "amount" : prediction,
-        "speed" : speed[type]
-    }
-
-    print(produce)
-    print("")
-# per beer type ---------------------------------------------
-
+        # json
+        produce = {
+            "beer_type" : key,
+            "amount" : prediction_data[key],
+            "speed" : speed[key]
+        }
+        print(produce)
