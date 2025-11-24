@@ -2,7 +2,7 @@ import sqlite3
 import json
 import numpy
 import matplotlib.pyplot as plot
-from predict_next_old import predict
+import sys
 
 # Connect to sqlite3 database containing past event data
 db_path = 'backend\statistics\database\event.db'

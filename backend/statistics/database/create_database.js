@@ -10,9 +10,9 @@ const db = new sqlite3.Database(dbPath);
 db.exec(`CREATE TABLE IF NOT EXISTS current_event (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	beer_type INTEGER NOT NULL,
-  	amount_produced INTEGER NOT NULL,
+  	amount_produced INTEGER,
 	amount_ordered INTEGER NOT NULL,
-	order_group INTERGER
+	order_group INTERGER NOT NULL
 );`);
 
 //Creates table for the past events
