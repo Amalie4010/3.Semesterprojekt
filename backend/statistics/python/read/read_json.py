@@ -6,7 +6,7 @@ import math
 from .beer_data import beer_data
 from .data_points import data_points
 
-def read_json() -> tuple[list[int], list[list[int]], list[int]]:
+def format_json() -> tuple[list[int], list[list[int]], list[int]]:
     types_set: set[int] = set()
     data_sorted: list[list[int]] = []
     data_all: list[int] = []

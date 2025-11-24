@@ -2,7 +2,7 @@
 import sys
 
 # Import own funcitons
-from read.read_json import read_json
+from read.read_json import format_json
 
 from database.query import insert
 
@@ -15,13 +15,13 @@ from live_analasis.prediction_error import prediction_error
 order_group = int(sys.argv[2])
 
 # Read and sort the orders.
-types, data_sorted, data_all = read_json() 
+types, data_sorted, data_all = format_json() 
 
 # Make linaer regression on all the beer orders
 slope = linear_regression(data_all)
 
 # Predict the next 5 minutes, based on the orders just made
-# Makes a dictionare of both the predictions and the actural orders
+# Makes a dictionary of both the predictions and the actural orders
 # dict[beer_type, amount]
 ordered_data, prediction_data = calculate_prediction(types, data_sorted, slope)
 
