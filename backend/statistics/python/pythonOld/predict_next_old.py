@@ -1,17 +1,12 @@
 import sqlite3
 import json
-
-# Connect to sqlite3 database containing past event data
-db_path = 'backend\statistics\database\event.db'
-db_connection = sqlite3.connect(db_path)
-
-# The cursor is used to execute the sql querries to read the data needed for the analysis
-cursor = db_connection.cursor()
+from database.query import read_coef
 
 def predict(group):
     #extract relevant info
-    cursor.execute("SELECT coefficients FROM prediction_formula")
-    coef = cursor.fetchone()[0] #Can be made into a python list
+    coef = read_coef()[0]
+    print(coef)
+    #coef = cursor.fetchone()[0] #Can be made into a python list
     coef_list = json.loads(coef)
     print(coef_list)
 

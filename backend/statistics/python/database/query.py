@@ -17,3 +17,8 @@ def read_total_amount():
         amount_ordered[item[0]] = item[2]
 
     return amount_produced, amount_ordered
+
+def read_coef():
+    query = "SELECT coefficients FROM prediction_formula"
+    data = execute_query_return(query)[0]
+    return data

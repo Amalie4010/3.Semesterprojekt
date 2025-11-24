@@ -2,6 +2,7 @@ import sqlite3
 import json
 import numpy
 import matplotlib.pyplot as plot
+from predict_next_old import predict
 
 # Connect to sqlite3 database containing past event data
 db_path = 'backend\statistics\database\event.db'
@@ -42,6 +43,7 @@ plot.plot(function_line, poly(function_line))
 # Store coefficients in db
 coef = poly.c.tolist()
 cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c, d]
+
 
 db_connection.commit()
 db_connection.close()

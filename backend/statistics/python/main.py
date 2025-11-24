@@ -6,10 +6,14 @@ from read.read_json import format_json
 
 from database.query import insert
 
+from pythonOld.predict_next_old import predict
+
 from live_analasis.prediction import calculate_prediction
 from live_analasis.linear import linear_regression
 from live_analasis.prediction_error import prediction_error
 # ------------------------------------------------------------------- #
+
+print(predict(2))
 
 # Order group is used for analasys of old data
 order_group = int(sys.argv[2])
