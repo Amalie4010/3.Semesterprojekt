@@ -6,14 +6,10 @@ from read.read_json import format_json
 
 from database.query import insert
 
-from pythonOld.predict_next_old import predict
-
 from live_analasis.prediction import calculate_prediction
 from live_analasis.linear import linear_regression
 from live_analasis.prediction_error import prediction_error
 # ------------------------------------------------------------------- #
-
-print(predict(2))
 
 # Order group is used for analasys of old data
 order_group = int(sys.argv[2])
@@ -27,7 +23,7 @@ slope = linear_regression(data_all)
 # Predict the next 5 minutes, based on the orders just made
 # Makes a dictionary of both the predictions and the actural orders
 # dict[beer_type, amount]
-ordered_data, prediction_data = calculate_prediction(types, data_sorted, slope)
+ordered_data, prediction_data = calculate_prediction(types, data_sorted, slope, order_group)
 
 # Corrects the predictions based on earlier prediction errors
 prediction_error(order_group, prediction_data)
