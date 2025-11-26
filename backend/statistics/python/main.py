@@ -9,24 +9,27 @@ from database.query import insert
 from live_analasis.prediction import calculate_prediction
 from live_analasis.linear import linear_regression
 from live_analasis.prediction_error import prediction_error
+
+from pythonOld.predict_next_old import predict
 # ------------------------------------------------------------------- #
 
 # Order group is used for analasys of old data
 order_group = int(sys.argv[2])
 
 # Read and sort the orders.
-types, data_sorted, data_all = format_json() 
+beer_ordered, coordinates = format_json() 
 
 # Make linaer regression on all the beer orders
-slope = linear_regression(data_all)
+live_slope = linear_regression(coordinates)
+old_slope = predict(order_group)
 
 # Predict the next 5 minutes, based on the orders just made
-# Makes a dictionary of both the predictions and the actural orders
-# dict[beer_type, amount]
-ordered_data, prediction_data = calculate_prediction(types, data_sorted, slope, order_group)
+beer_predictions = calculate_prediction(beer_ordered, live_slope, old_slope)
 
 # Corrects the predictions based on earlier prediction errors
-prediction_error(order_group, prediction_data)
+# if the order group is 0 there are no earlier data from this event
+if (order_group > 1):
+    prediction_error(beer_predictions)
 
 # Speed per beer type
 speed = {
@@ -39,17 +42,16 @@ speed = {
 }
 
 # Make json and insert in database
-if (prediction_data.__len__() > 1):
-    prediction_keys = prediction_data.keys()
-
-    for key in prediction_keys:
-        # Insert in database
-        insert(key, prediction_data[key], ordered_data[key], order_group)
-
+for key in beer_ordered:
+    if key in beer_predictions:
+        insert(key, beer_predictions[key], beer_ordered[key], order_group)
+        
         # json
         produce = {
             "beer_type" : key,
-            "amount" : prediction_data[key],
+            "amount" : beer_predictions[key],
             "speed" : speed[key]
         }
         print(produce)
+    else:
+        insert(key, 0, beer_ordered[key], order_group)

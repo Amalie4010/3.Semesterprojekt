@@ -1,21 +1,13 @@
 from scipy import stats
 
-def linear_regression(data_all: list[int]) -> float:
-    x_data: list[int] = []
-    y_data: list[int] = []
+def linear_regression(coordinates: dict[str, list[int]]) -> float:
+    slope = 0
 
-    for item in data_all:
-        x_data.append(item["x"])
-        y_data.append(item["y"])
-
-    if (data_all.__len__() > 1):
-        # linear reggression
-        slope, intercept, r, p, std_err = stats.linregress(x_data, y_data)
+    # You can't make linregress if there is only 1 point
+    if (coordinates["x"].__len__() > 1):
+        slope, intercept, r, p, std_err = stats.linregress(coordinates["x"], coordinates["y"])
 
         # Uncomment to see plottet regresion analasys
         # plot_line(slope, intercept, x_data, y_data)
         
-        return slope
-    else:
-        slope = 0
-        return slope
+    return slope
