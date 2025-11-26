@@ -1,5 +1,11 @@
-import sqlite3
 import json
+import sys
+import os
+
+# Add parent folder (python) to path
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(BASE_DIR)
+
 from database.query import read_coef
 
 def predict(group):
@@ -10,10 +16,10 @@ def predict(group):
     coef_list = json.loads(coef)
     # print(coef_list)
 
-    a, b, c, d = coef_list #now each variable has its correspondning value from the list
+    a, b, c= coef_list #now each variable has its correspondning value from the list
 
     #calculate prediction
-    prediction = a*(group**3) + b*(group**2) + c*group + d
+    prediction = a*(group**2) + b*(group) + c
 
     # print(prediction)
     return prediction
