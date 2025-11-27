@@ -39,7 +39,6 @@ function_line = numpy.linspace(min(x), max(x), 100)
 
 plot.scatter(x, y)
 plot.plot(function_line, poly(function_line))
-# plot.show() # !!! REMOVE THIS LINE BEFORE RELEASE - IT FREEZES THE PROGRAM CAUSE THE THREAD CAN'T CONTINUE BEFORE POP-UP IS CLOSED !!!
 
 # Store coefficients in db
 coef = poly.c.tolist()
@@ -48,8 +47,5 @@ coef = differentiate_cubic(coef)
 
 cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c] 
 db_connection.commit()
-
-from predict_next_old import predict
-print(predict(2))
 
 db_connection.close()
