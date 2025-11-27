@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('event', function (Blueprint $table) {
             $table->id();
-            $table->integer('amountofpeople');
-            $table->integer('eventlength');
+            $table->integer('Amount_of_people');
+            $table->integer('Length_of_event');
             $table->timestamps();
         });
     }

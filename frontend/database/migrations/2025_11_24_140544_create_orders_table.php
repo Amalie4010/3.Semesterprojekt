@@ -13,8 +13,14 @@ return new class extends Migration
     {
          Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('beer_type');
+            $table->unsignedTinyInteger('type_id');
+            // first "beertype" the column in current table
+            // second the column in another table
+            // last is the other table name were refferencing from
+            $table->foreign('type_id')->references('type_id')->on('beertype');
             $table->integer('quantity');
+            // automatically creates a "event_id" column inside this table, and refferences id in the "event" table, it knows that automatically, cuz that is how laravel have made it work so it calls the PK when using this refferencing method.
+            $table->foreignId('event_id')->constrained('event'); 
             $table->timestamps();
         });
     }
