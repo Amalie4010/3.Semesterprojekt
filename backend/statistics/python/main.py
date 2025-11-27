@@ -41,6 +41,8 @@ speed = {
     5 : 10
 }
 
+production = []
+
 # Make json and insert in database
 for key in beer_ordered:
     # We can't produce - beers, and there is no reason to tell the maschine 
@@ -57,6 +59,9 @@ for key in beer_ordered:
             "amount" : beer_predictions[key],
             "speed" : speed[key]
         }
-        print(produce)
+        production.append(produce)
     else:
         insert(key, 0, beer_ordered[key], order_group)
+
+if (production.__len__() >= 1):
+    print(production)
