@@ -50,7 +50,6 @@ class OrderController extends Controller
 
         // the order is saved into the database
         $order->save();
-
         //should work not tested yet.
 
         /* Use post order to send to statistic */
