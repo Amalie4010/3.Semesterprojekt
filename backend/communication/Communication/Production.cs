@@ -77,6 +77,7 @@ namespace communication.Communication
         public static int GetTimeout() => timeoutMs;
         public static int GetPublishInterval() => publishInterval;
         public PowerState GetState() => state;
+        public Command[] GetQueue() => cmdQueue.Peek();
         
         public void MakeNewMachine(string connectionString)
         {

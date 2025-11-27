@@ -14,6 +14,7 @@ namespace communication.Communication
         {
             
         }
+        public Command[] Peek() => queue.ToArray();
         public bool Delete(Guid id)
         {
             if (queuedCommandIds.Remove(id))

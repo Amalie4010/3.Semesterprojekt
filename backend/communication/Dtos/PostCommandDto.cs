@@ -10,9 +10,9 @@ namespace communication.Dtos
 
         public PostCommandDto(BeerTypes type, int amount, int speed)
         {
-            this.Type = type;
-            this.Amount = amount;
-            this.Speed = speed;
+            Type = type;
+            Amount = amount;
+            Speed = speed;
         }
     }
 }
