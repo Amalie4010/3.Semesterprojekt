@@ -11,10 +11,10 @@ namespace communication.Models
 
         public Command(BeerTypes type, int amount, int speed)
         {
-            this.Id = Guid.NewGuid();
-            this.Type = type;
-            this.Amount = amount;
-            this.Speed = speed;
+            Id = Guid.NewGuid();
+            Type = type;
+            Amount = amount;
+            Speed = speed;
         }
         public Command(PostCommandDto dto)
         {
