@@ -41,7 +41,11 @@ class BeerTypeSeeder extends Seeder
             ]
         ]);
         /* now what i gotta do is make it so the dropdownbox shows foreach item in the table.
-            and when you make an order it will send the "type_id", instead of the hardcoded value inside of the 
+            And when you make an order it will send the "type_id" that it should be refferenced to,
+                instead of the hardcoded value inside of the attendee blade.
+            Then i gotta make it so that the an event is connected to the order so that is 2 parts.
+                inside the event seeder i gotta make an event, & run it.
+                make it so when u make an order it will take the newest eventId as a refference.
         */
     }
 }
