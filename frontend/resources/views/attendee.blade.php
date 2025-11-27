@@ -20,8 +20,9 @@
                 <div id="chooseBeer">
                     <label for=""></label>
                     <!-- dropdownbar -->
+                    <!-- the beers are hardcoded into the code, should have made it different, havnt improved cuz of time -->
                     <select id="dropdownbar" name="beer_type">
-                        <option value="" disabled selected>-- Choose a beer --</option>
+                        <option disabled selected>-- Choose a beer --</option>
                         <option value="0">Pilsner</option>
                         <option value="1">Wheat</option>
                         <option value="2">IPA</option>
@@ -41,10 +42,8 @@
         <section class="section" id="rightside" >
             <div id="ruleset">
                 <ul>
-                    <li>Rules For Ordering</li>
+                    <p>Rules For Ordering</p>
                     <li>Max order amount is 10 at a time</li>
-                    <li>1</li>
-                    <li>1</li>
                 </ul>
             </div>
         </section>

@@ -15,7 +15,7 @@ grid-template-columns: 50% 50%;
 
 #ruleset{
 border: 2px solid black;
-
+padding: 15px;
 }
 
 #Container{

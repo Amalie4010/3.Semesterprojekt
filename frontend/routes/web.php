@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use Illuminate\Routing\Controllers\Middleware;
+use App\Http\Controllers\LoginController;
 
 /* When you call the api from frontend REMEMBER!!!!! to have /api at front of /order.. like this http://localhost:8000/api/order
 Because /api is prefixed in api routes file */
@@ -13,6 +14,11 @@ Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])-
 
 
 /* Routes for event attendee dynamic views */
+
+Route::get('/', function () { 
+    return view('index');
+}) -> name('index');
+
 Route::get('/attendee', function () { 
     return view('attendee');
 }) -> name('goto.attendee');
@@ -26,3 +32,7 @@ Route::get('/register', function(){
 })->name('goto.register');
 
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt'); 
+
+Route::get('/operator', function () { 
+    return view('operator');
+}) -> name('goto.operator');
