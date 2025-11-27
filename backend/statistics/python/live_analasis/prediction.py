@@ -1,9 +1,8 @@
 import math
-from pythonOld.predict_next_old import predict
 
-def calculate_prediction(types: list[int], data_sorted: list[list[int]], slope: float, order_group: int) -> tuple[dict[int, int], dict[int, int]]:
-    ordered_data = {}
-    prediction_data = {}
+def calculate_prediction(beer_ordered: dict[int, int], live_slope: float, old_slope: float,) -> dict[int, int]:
+    # dict[beer_type, amount]
+    beer_predictions: dict[int, int] = {}
     fail_rate = {
         0 : 0, 
         1 : 0.045, 
@@ -13,29 +12,13 @@ def calculate_prediction(types: list[int], data_sorted: list[list[int]], slope: 
         5 : 0.16
     }
 
-    for type in types:
-        amount = 0
-        for item in data_sorted[types.index(type)]:
-            amount += item["y"]
+    for key in beer_ordered:
+        slope = (live_slope + old_slope) / 2 # Find the average slope
+        prediction = beer_ordered[key] + beer_ordered[key] * slope # Aply the slope
+        beer_predictions[key] = prediction
 
-        prediction = amount + amount * slope
+    for key in beer_predictions:       
+        beer_predictions[key] = beer_predictions[key] + beer_predictions[key] * fail_rate[key] # take fail rate into account
+        beer_predictions[key] = math.ceil(beer_predictions[key]) # Round up
 
-        ordered_data[type] = amount
-        prediction_data[type] = prediction
-
-
-    prediction_old = predict(order_group)
-    prediction_new = 0
-    for data in prediction_data:
-        prediction_new += data
-
-    diffence = prediction_old/prediction_new
-
-    for key in prediction_data:
-        prediction_data[key] = prediction_data[key] + prediction_data[key] * ((diffence-1)/2)
-        
-        prediction_data[key] = prediction_data[key] + prediction_data[key] * fail_rate[type]
-
-        prediction_data[key] = math.ceil(prediction_data[key])
-
-    return ordered_data, prediction_data
+    return beer_predictions
