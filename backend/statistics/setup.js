@@ -8,6 +8,7 @@ import {pythonStarter, prediction} from './pyrunner.js'; //runs statistics predi
 prediction();
 
 export let order_group = 0; //Runs statistics every 5 min
+
 setInterval(() => {
 pythonStarter(++order_group)
-}, 5 * 1000);
+}, 60 * 1000);

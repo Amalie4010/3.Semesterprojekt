@@ -3,16 +3,8 @@ import fs from 'fs';
 let orderList = "";
 
 export function sendInstructions(req, res){
-
         const data = req.body;
-
-        const instruction = JSON.stringify({
-        type: data.type,
-        amount: data.amount,
-        speed: data.speed
-        });
-
-        res.send(instruction);
+        data.foreach((element) => res.send(element));
 }
 
 export const receiveDatabaseInformation = async (req, res) => {
