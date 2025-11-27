@@ -43,6 +43,11 @@ speed = {
 
 # Make json and insert in database
 for key in beer_ordered:
+    # We can't produce - beers, and there is no reason to tell the maschine 
+    # to produce 0, so predictions that follow this will be removed.
+    if (beer_predictions[key] <= 0):
+        beer_predictions.pop(key)
+
     if key in beer_predictions:
         insert(key, beer_predictions[key], beer_ordered[key], order_group)
         

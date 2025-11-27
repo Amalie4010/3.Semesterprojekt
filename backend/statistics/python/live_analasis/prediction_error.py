@@ -17,8 +17,3 @@ def prediction_error(beer_predictions: dict[int, int]):
                 beer_predictions[key] = beer_predictions[key] + fix
             else:
                 beer_predictions[key] = fix
-            
-            # We can't produce - beers, and there is no reason to tell the maschine 
-            # to produce 0, so predictions that follow this will be removed.
-            if (beer_predictions[key] <= 0):
-                beer_predictions.pop(key)

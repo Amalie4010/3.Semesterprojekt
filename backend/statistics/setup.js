@@ -1,4 +1,5 @@
 import './app.js'; //server
+import './database/create_database.js'
 
 // IMPORT DATA FROM DATABASE
 

@@ -7,8 +7,7 @@ def format_json() -> tuple[dict[int, int], dict[str, list[int]]]:
     # dict[beer_type, amount]
     beer_ordered: dict[int, int] = {}
 
-    # dict["x", list[amount]]
-    # dict["y", list[time]] 
+    # {"x": [time], "y": [amount]} 
     coordinates: dict[str, list[int]] = {"x": [], "y": []} 
 
     if len(sys.argv) >= 1: # Makes sure there is data
