@@ -55,7 +55,7 @@ for key in beer_ordered:
         
         # json
         produce = {
-            "beer_type" : key,
+            "type" : key,
             "amount" : beer_predictions[key],
             "speed" : speed[key]
         }

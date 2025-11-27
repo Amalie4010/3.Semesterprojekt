@@ -1,10 +1,8 @@
 import fs from 'fs';
 
-let orderList = "";
-
-export function sendInstructions(req, res){
+export const sendInstructions = async (req, res) => {
         const data = req.body;
-        data.foreach((element) => res.send(element));
+        data.foreach((element) => req.send(element));
         console.log(res.body);
 }
 
