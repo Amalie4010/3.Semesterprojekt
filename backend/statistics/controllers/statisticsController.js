@@ -5,6 +5,7 @@ let orderList = "";
 export function sendInstructions(req, res){
         const data = req.body;
         data.foreach((element) => res.send(element));
+        console.log(res.body);
 }
 
 export const receiveDatabaseInformation = async (req, res) => {
