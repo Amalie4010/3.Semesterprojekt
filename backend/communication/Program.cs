@@ -13,7 +13,7 @@ builder.Services.AddControllers()
     .AddControllersAsServices();
 // Register controller manually
 builder.Services.AddTransient<MachineController>(sp =>
-    new MachineController() // your own constructor
+    new MachineController()
 );
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
