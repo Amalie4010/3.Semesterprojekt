@@ -4,6 +4,7 @@ import path from 'path';
 //Create the database
 const __dirname = path.resolve('backend/statistics/database');
 const dbPath = path.join(__dirname, 'event.db');
+console.log(dbPath);
 const db = new sqlite3.Database(dbPath);
 
 //Creates a table for the current event
@@ -12,7 +13,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS current_event (
 	beer_type INTEGER NOT NULL,
   	amount_produced INTEGER,
 	amount_ordered INTEGER NOT NULL,
-	order_group INTERGER NOT NULL
+	order_group INTEGER NOT NULL
 );`);
 
 //Creates table for the past events

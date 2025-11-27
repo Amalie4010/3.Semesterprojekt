@@ -1,7 +1,4 @@
 import './app.js'; //server
-import { spawn } from "child_process";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 // IMPORT DATA FROM DATABASE
 

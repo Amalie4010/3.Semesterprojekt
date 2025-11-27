@@ -2,6 +2,7 @@ import sqlite3
 import json
 import numpy
 import matplotlib.pyplot as plot
+from differentiate_formula import differentiate_cubic
 import sys
 
 # Connect to sqlite3 database containing past event data
@@ -38,12 +39,13 @@ function_line = numpy.linspace(min(x), max(x), 100)
 
 plot.scatter(x, y)
 plot.plot(function_line, poly(function_line))
-# plot.show() # !!! REMOVE THIS LINE BEFORE RELEASE - IT FREEZES THE PROGRAM CAUSE THE THREAD CAN'T CONTINUE BEFORE POP-UP IS CLOSED !!!
 
 # Store coefficients in db
 coef = poly.c.tolist()
-cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c, d]
 
+coef = differentiate_cubic(coef)
 
+cursor.execute( 'INSERT INTO prediction_formula (coefficients) VALUES (?)', (json.dumps(coef),)) #Stored as [a, b, c] 
 db_connection.commit()
+
 db_connection.close()
