@@ -1,9 +1,33 @@
-export const sendInstructions = async (req, res) => {};
+import fs from 'fs';
 
-export const receiveDatabaseInformation = async (req, res) => {};
+export const sendInstructions = async (req, res) => {
+        const data = req.body;
+        data.foreach((element) => req.send(element));
+        console.log(res.body);
+}
+
+export const receiveDatabaseInformation = async (req, res) => {
+
+}
 
 export const receiveOrder = async (req, res) => {
-  const order = req.body;
-  res.send(order);
-  console.log(order);
-};
+    const order = req.body;
+    res.send("order received");
+
+    let content = fs.readFileSync('backend/statistics/orders.json');
+    console.log(content + "file");
+
+    let fileArr = [];
+
+    if(content.length > 0){
+        fileArr = JSON.parse(content);
+    }
+
+    console.log(fileArr + "fileArr");
+    fileArr.push(order);
+
+    content = JSON.stringify(fileArr);
+
+    console.log(content + "file 2");
+    fs.writeFileSync('backend/statistics/orders.json', content);
+}
