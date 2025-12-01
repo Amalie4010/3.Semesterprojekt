@@ -13,7 +13,7 @@ from live_analasis.prediction_error import prediction_error
 
 from pythonOld.predict_next_old import get_old_slope
 # ------------------------------------------------------------------- #
-url = "http://localhost:8080/api/communication/command"
+url = "http://localhost:5139/api/communication/command"
 
 # Order group is used for analasys of old data
 order_group = int(sys.argv[2])
