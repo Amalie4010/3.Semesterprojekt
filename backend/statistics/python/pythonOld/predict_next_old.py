@@ -8,7 +8,7 @@ sys.path.append(BASE_DIR)
 
 from database.query import read_coef
 
-def predict(group):
+def get_old_slope(group):
     #extract relevant info
     coef = read_coef()[0]
     group = group + 0.5

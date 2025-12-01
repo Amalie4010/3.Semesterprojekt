@@ -1,5 +1,6 @@
 # Import libary
 import sys
+import requests
 
 # Import own funcitons
 from read.read_json import format_json
@@ -10,8 +11,9 @@ from live_analasis.prediction import calculate_prediction
 from live_analasis.linear import linear_regression
 from live_analasis.prediction_error import prediction_error
 
-from pythonOld.predict_next_old import predict
+from pythonOld.predict_next_old import get_old_slope
 # ------------------------------------------------------------------- #
+url = "http://localhost:8080/api/communication/command"
 
 # Order group is used for analasys of old data
 order_group = int(sys.argv[2])
@@ -21,7 +23,7 @@ beer_ordered, coordinates = format_json()
 
 # Make linaer regression on all the beer orders
 live_slope = linear_regression(coordinates)
-old_slope = predict(order_group)
+old_slope = get_old_slope(order_group)
 
 # Predict the next 5 minutes, based on the orders just made
 beer_predictions = calculate_prediction(beer_ordered, live_slope, old_slope)
@@ -55,13 +57,10 @@ for key in beer_ordered:
         
         # json
         produce = {
-            "beer_type" : key,
-            "amount" : beer_predictions[key],
-            "speed" : speed[key]
+            "beer_type": key,
+            "amount": beer_predictions[key],
+            "speed": speed[key]
         }
-        production.append(produce)
+        requests.post(url, json = produce)
     else:
         insert(key, 0, beer_ordered[key], order_group)
-
-if (production.__len__() >= 1):
-    print(production)

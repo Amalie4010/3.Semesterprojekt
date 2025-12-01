@@ -1,7 +1,7 @@
 from scipy import stats
 
 def linear_regression(coordinates: dict[str, list[int]]) -> float:
-    slope = 0
+    slope: float = 0
 
     # You can't make linregress if there is only 1 point
     if (coordinates["x"].__len__() > 1):
