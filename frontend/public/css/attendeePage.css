@@ -31,7 +31,6 @@ display: grid;
 #rightside{
     display: flex;
     grid-column: 2;
-
 }
 
 .button{
