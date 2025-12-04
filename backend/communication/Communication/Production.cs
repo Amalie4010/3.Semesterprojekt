@@ -77,6 +77,7 @@ namespace communication.Communication
         public static int GetTimeout() => timeoutMs;
         public static int GetPublishInterval() => publishInterval;
         public PowerState GetState() => state;
+        public Command[] GetQueue() => cmdQueue.Peek();
         
         public void MakeNewMachine(string connectionString)
         {
@@ -84,6 +85,10 @@ namespace communication.Communication
                 return; // Already exists
                 
             machines.Add(new Machine(connectionString, cmdQueue));
+        }
+        public void MakeNewMachine(IMachine machine)
+        {
+            machines.Add(machine);
         }
         public MachineStatus GetStatus(string connectionString)
         {

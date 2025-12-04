@@ -66,14 +66,34 @@ namespace communication.Controllers
 
         }
         [HttpGet("command/current")]
-        public ActionResult<Command?[]> GetCommandCurrent()
+        public ActionResult<GetCommandDto?[]> GetCommandsCurrent()
         {
-            return _production.GetCurrentCommands();
+            var commands = _production.GetCurrentCommands();
+            var progresses = _production.GetProgress();
+            GetCommandDto?[] dtos = new GetCommandDto[commands.Length];
+            for (int i = 0; i < commands.Length; i++)
+            {
+                var command = commands[i];
+                if (command == null)
+                {
+                    dtos[i] = null;
+                    continue;
+                }
+                var dto = new GetCommandDto(command, progresses[i]);
+                dtos[i] = dto;
+            }
+            return dtos;
         }
-        [HttpGet("command/current/progress")]
-        public ActionResult<int[]> GetCommandProgress()
+        [HttpGet("command/queue")]
+        public ActionResult<GetCommandDto[]> GetQueue()
         {
-            return _production.GetProgress();
+            var commands = _production.GetQueue();
+            var dtos = new GetCommandDto[commands.Length];
+            for(int i = 0; i < commands.Length; i++)
+            {
+                dtos[i] = new GetCommandDto(commands[i]);
+            }
+            return dtos;
         }
 
         [HttpPost("machine")]

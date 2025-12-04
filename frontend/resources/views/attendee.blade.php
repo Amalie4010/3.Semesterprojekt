@@ -14,20 +14,24 @@
                 {{session('success')}}
             </div>
         @endif
+        @if($errors->any())
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{$error}}</li>
+            @endforeach
+        </ul>
+        @endif
         <section class="section" id="leftside">
             <form id="formSubmitBeer" action="{{route('order.makeOrder')}}" method="post" >
             @csrf
                 <div id="chooseBeer">
-                    <label for=""></label>
                     <!-- dropdownbar -->
-                    <select id="dropdownbar" name="beer_type">
-                        <option value="" disabled selected>-- Choose a beer --</option>
-                        <option value="0">Pilsner</option>
-                        <option value="1">Wheat</option>
-                        <option value="2">IPA</option>
-                        <option value="3">Staut</option>
-                        <option value="4">Ale</option>
-                        <option value="5">Alkoholfri</option>
+                    <!-- the beers are hardcoded into the code, should have made it different, havnt improved cuz of time -->
+                    <select id="dropdownbar" name="type_id">
+                        <option disabled selected>-- Choose a beer --</option>
+                        @foreach ($beertype as $beerType)
+                            <option value="{{ $beerType->type_id}}">{{$beerType->name}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -41,10 +45,8 @@
         <section class="section" id="rightside" >
             <div id="ruleset">
                 <ul>
-                    <li>Rules For Ordering</li>
+                    <p>Rules For Ordering</p>
                     <li>Max order amount is 10 at a time</li>
-                    <li>1</li>
-                    <li>1</li>
                 </ul>
             </div>
         </section>

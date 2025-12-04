@@ -53,10 +53,19 @@ Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);
 Route::post('/api/order-system/order', [OrderController::class, 'createOrder'])->name('order.makeOrder');
 
 
+// login
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt'); 
+
 /* Routes for event attendee dynamic views */
 Route::get('/attendee', function () {
     return view('attendee');
 })->name('goto.attendee');
+
+Route::get('/', function () { 
+    return view('index');
+}) -> name('index');
+
+Route::get('/attendee', [ViewController::class, 'attendee']) -> name('goto.attendee');
 
 // Frontend operator
 Route::post('/connect', [MachineController::class, 'connectToMachine'])->name('connect');
