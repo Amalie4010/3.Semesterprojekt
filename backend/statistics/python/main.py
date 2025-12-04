@@ -3,7 +3,7 @@ import sys
 import requests
 
 # Import own funcitons
-from read.read_json import format_json
+from read.format_json import format_json
 
 from database.query import insert
 
