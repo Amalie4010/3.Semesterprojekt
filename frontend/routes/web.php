@@ -33,6 +33,8 @@ Route::post('/operator/stop', function () {
 
 */ //Operator page done
 
+
+
 Route::get('/api/orders', [OrderController::class, 'getOrders']);
 Route::post('/api/order', [OrderController::class, 'createOrder']);
 Route::get('/', function () {
@@ -59,6 +61,7 @@ Route::get('/attendee', function () {
 // Frontend operator
 Route::post('/connect', [MachineController::class, 'connectToMachine'])->name('connect');
 Route::post('/power', [MachineController::class, 'Power'])->name('Power');
+Route::post('/stop', [MachineController::class, 'Stop'])->name('Stop');
 
 Route::get('/login', function () {
     return view('login');
@@ -69,3 +72,5 @@ Route::get('/register', function () {
 })->name('goto.register');
 
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
+
+Route::get('/machines/list', [MachineController::class, 'listMachines']);

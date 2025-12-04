@@ -80,7 +80,13 @@ namespace communication.Controllers
         public IActionResult MakeMachine([FromBody] string connectionString)
         {
             _production.MakeNewMachine(connectionString);
-            return Ok();
+            return Ok(new { message = "Machine added", connectionString });
+        }
+
+        [HttpGet("machines")]
+        public IActionResult GetMachines()
+        {
+            return Ok(_production.GetAllMachines());
         }
     }
 }
