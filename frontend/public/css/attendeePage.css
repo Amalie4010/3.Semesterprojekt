@@ -1,0 +1,46 @@
+body{
+    margin: 10px;
+}
+.section{
+display: grid;
+grid-template-columns: 50% 50%;
+
+}
+
+#chooseBeer{
+
+
+}
+
+
+#ruleset{
+border: 2px solid black;
+padding: 15px;
+}
+
+#Container{
+display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+#leftside{
+    grid-column: 1;
+    display: flex;
+}
+
+#rightside{
+    display: flex;
+    grid-column: 2;
+}
+
+.button{
+
+    background-color: #E3E1B8; 
+    padding: 2px 4px;
+    font: 13px sans-serif;
+    text-decoration: none;
+    border: 1px solid #000;
+    border-color: #aaa #444 #444 #aaa;
+    color: #000
+
+}

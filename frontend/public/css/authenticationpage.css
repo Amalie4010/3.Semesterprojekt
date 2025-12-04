@@ -1,0 +1,24 @@
+
+body{
+    background-color: rgb(219, 244, 225)
+}
+
+
+#container{
+    margin: 5%;
+    display: flex;
+    flex-direction: column;
+    border: 2px black solid;
+    border-radius: 10px;
+    border-color: #535e68;
+    background-color: #535e68;
+    height: 700px;
+    align-items: center;
+
+}
+
+
+.text{
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
+}
