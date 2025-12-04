@@ -1,5 +1,4 @@
 import {
-  sendInstructions,
   receiveDatabaseInformation,
   receiveOrder,
 } from "../controllers/statisticsController.js";
@@ -9,10 +8,8 @@ const router = express.Router();
 
 export default router;
 
-//Send instructions to communications
-router.post("/communincation", sendInstructions);
-
 //Get information of earlier events from database
 router.get("/db", receiveDatabaseInformation);
 
-router.post("/order", receiveOrder);
+
+router.post("/statistics/order", receiveOrder);
