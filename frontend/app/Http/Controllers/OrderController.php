@@ -13,7 +13,7 @@ class OrderController extends Controller
     public function postOrder($order)
     {
         Http::post('http://127.0.0.1:8080/api/statistics/order', [
-            'type_id' => $order->beer_type,
+            'beer_type' => $order->type_id,
             'quantity' => $order->quantity,
             'createdAt' => $order->created_at,
         ]);
