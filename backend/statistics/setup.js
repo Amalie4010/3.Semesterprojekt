@@ -11,4 +11,4 @@ export let order_group = 0; //Runs statistics every 5 min
 
 setInterval(() => {
 pythonStarter(++order_group)
-}, 60 * 1000);
+}, 10 * 1000);
