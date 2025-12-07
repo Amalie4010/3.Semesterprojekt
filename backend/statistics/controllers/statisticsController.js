@@ -16,4 +16,4 @@ export const receiveOrder = async (req, res) => {
     fileArr.push(order);
     content = JSON.stringify(fileArr);
     fs.writeFileSync('backend/statistics/orders.json', content);
-}>>>>>>>>> Temporary merge branch 2
+}
