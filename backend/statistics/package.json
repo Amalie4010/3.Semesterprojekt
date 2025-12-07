@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Amalie4010/3.Semesterprojekt#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "sqlite3": "^5.1.7"
   }
 }

@@ -4,19 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('orders', function (Blueprint $table) {
+    {        
+        Schema::create('beertype', function (Blueprint $table) {
             $table->id();
-            $table->integer('beer_type');
-            $table->integer('quantity');
+            $table->unsignedTinyInteger('type_id')->unique(); // the reason for creating another type of id, is because the machine reads one of the beer types as a 0, and the primary key cannot be saved as a 0.
+            $table->string('name');
             $table->timestamps();
         });
+        
     }
 
     /**
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('beertype');
     }
 };
