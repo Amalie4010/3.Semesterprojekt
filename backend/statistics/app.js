@@ -20,11 +20,3 @@ app.use("/api", routes);
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:", PORT);
 });
-
-
-
-
->>>>>>>>> Temporary merge branch 2
-
-
->>>>>>>>> Temporary merge branch 2
