@@ -6,7 +6,7 @@ from differentiate_formula import differentiate_cubic
 import sys
 
 # Connect to sqlite3 database containing past event data
-db_path = 'backend/statistics/database/event.db'
+db_path = 'database/event.db'
 db_connection = sqlite3.connect(db_path)
 
 # The cursor is used to execute the sql querries to read the data needed for the analysis

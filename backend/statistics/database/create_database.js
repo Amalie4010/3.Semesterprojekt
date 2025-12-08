@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3';
 import path from 'path';
 
 //Create the database
-const __dirname = path.resolve('backend/statistics/database');
+const __dirname = path.resolve('database');
 const dbPath = path.join(__dirname, 'event.db');
 console.log(dbPath);
 const db = new sqlite3.Database(dbPath);
