@@ -1,0 +1,166 @@
+# -------------------------------
+# MySQL Persistent Volume Claim
+# -------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# -------------------------------
+# MySQL Deployment
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "password"
+        - name: MYSQL_DATABASE
+          value: "3semester"
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+---
+# -------------------------------
+# MySQL Service
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+  type: ClusterIP
+---
+# -------------------------------
+# phpMyAdmin Deployment
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - name: phpmyadmin
+        image: phpmyadmin:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: PMA_HOST
+          value: "mysql"   # Must match MySQL Service name
+        - name: PMA_USER
+          value: "root"
+        - name: PMA_PASSWORD
+          value: "password"
+---
+# -------------------------------
+# phpMyAdmin Service
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpmyadmin
+spec:
+  selector:
+    app: phpmyadmin
+  ports:
+  - port: 8080
+    targetPort: 80
+  type: NodePort  # Exposes phpMyAdmin on a NodePort for browser access
+---
+# -------------------------------
+# Laravel Frontend Deployment
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-frontend
+  labels:
+    app: laravel-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: laravel-frontend
+  template:
+    metadata:
+      labels:
+        app: laravel-frontend
+    spec:
+      containers:
+      - name: laravel-frontend
+        image: frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: "mysql"
+        - name: DB_DATABASE
+          value: "3semester"
+        - name: DB_USERNAME
+          value: "root"
+        - name: DB_PASSWORD
+          value: "password"
+---
+# -------------------------------
+# Laravel Frontend Service
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravel-frontend
+spec:
+  selector:
+    app: laravel-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: NodePort

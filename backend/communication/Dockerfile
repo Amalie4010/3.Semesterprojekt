@@ -16,4 +16,5 @@ RUN dotnet publish communication.csproj -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /App
 COPY --from=build /App/out .
+ENV ASPNETCORE_URLS=http://+:5139
 ENTRYPOINT ["dotnet", "communication.dll"]
