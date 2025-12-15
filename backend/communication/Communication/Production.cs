@@ -81,6 +81,9 @@ namespace communication.Communication
         
         public void MakeNewMachine(string connectionString)
         {
+            if (machines.Any(m => m.GetConnectionString() == connectionString))
+                return; // Already exists
+                
             machines.Add(new Machine(connectionString, cmdQueue));
         }
         public void MakeNewMachine(IMachine machine)
@@ -95,6 +98,11 @@ namespace communication.Communication
                 throw new Exception($"No machine found with connection string '{connectionString}'");
             }
             return machine.GetStatus();
+        }
+
+        public IEnumerable<string> GetAllMachines()
+        {
+            return machines.Select(m => m.GetConnectionString());
         }
     }
 }

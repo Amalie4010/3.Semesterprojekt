@@ -18,5 +18,6 @@ namespace communication.Interfaces
         public abstract static int GetTimeout();
         public abstract static int GetPublishInterval();
         public PowerState GetState();
+        IEnumerable<string> GetAllMachines();
     }
 }

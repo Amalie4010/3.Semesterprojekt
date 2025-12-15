@@ -1,24 +1,56 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6">Machine Monitor</h1>
-    <div class="container">
-        <!-- Popup -->
-    <div id="popup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-2xl shadow-lg w-96">
-            <h2 class="text-xl font-semibold mb-4">Enter Connection String</h2>
-            <input id="connectionString" type="text" class="border w-full rounded p-2 mb-4" placeholder="Server=...;Database=...;">
-            <button onclick="connectMachine()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Connect</button>
+<div class="monitor-container">
+    <h1 class="monitor-title">Machine Monitor</h1>
+
+    <!-- Connection Form -->
+    <div class="connection-block">
+        <form action="{{ route('connect') }}" method="post" class="connection-form">
+            @csrf
+            <input type="text" id="connectionString" name="connectionString" placeholder="Connection String">
+            <button type="submit">Submit</button>
+        </form>
+
+        <form action="{{ route('Power') }}" method="post">
+            @csrf
+            <input type="hidden" name="d" value="1">
+            <button type="submit">Start</button>
+        </form>
+
+        <form action="{{ route('Power') }}" method="post">
+            @csrf
+            <input type="hidden" name="d" value="0">
+            <button type="submit">Stop</button>
+        </form>
+    </div>
+
+    <!-- Machine container (empty - JS inserts boxes) -->
+    <div class="machines-container" id="machinesContainer">
+
+        <!-- Template used for cloning (will not be rendered by browser) -->
+        <template id="machine-template">
+            <div class="machine-box">
+                <h2 class="machine-title"></h2>
+                <pre class="machine-data"></pre>
+            </div>
+        </template>
+    </div>
+
+    <div class="command-container">
+        <h2 class="queue-title">Production Queue</h2>
+
+        <div class="command-section">
+            <h3>Current Commands</h3>
+            <pre class="command-data" id="currentCommands">Loading...</pre>
+        </div>
+
+        <div class="command-section">
+            <h3>Queue</h3>
+            <div id="queueList">Loading...</div>
         </div>
     </div>
 
-    <!-- Display -->
-    <div id="dataSection" class="hidden w-full max-w-2xl mt-6">
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-lg font-semibold mb-4">Live Machine Data</h2>
-            <pre id="machineData" class="bg-gray-200 p-3 rounded text-sm overflow-auto h-96">Waiting for data...</pre>
-        </div>
-    </div>
-    </div>
-    
+</div>
 @endsection
+

@@ -35,6 +35,29 @@ namespace DefaultNamespace
         {
             Production production = Production.GetInstance();
 
+             try
+            {
+                production.GetStatus(connectionString);
+            }
+            catch
+            {
+                // Machine not found → create it automatically
+                //production.MakeNewMachine(connectionString);
+                return new EmptyResult();
+            }
+
+            // Return the stream as an SSE response . Need this for the browser to know its SSE
+            Response.Headers.Add("Content-Type", "text/event-stream");
+            Response.Headers.Add("Cache-Control", "no-cache");
+            Response.Headers.Add("Connection", "keep-alive");
+
+            // CORS for SSE
+
+            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:8000");
+            Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+            Response.Headers.Add("Access-Control-Allow-Headers", "*");
+
+
             // Return an SSE stream as an IAsyncEnumerable
             //IAsyncEnumaerable makes it possible to instead of returning all data at once, it returns items one by one like SSE does
             async IAsyncEnumerable<string> SseMachineStatus([EnumeratorCancellation] CancellationToken ct)
@@ -56,9 +79,6 @@ namespace DefaultNamespace
                     await Task.Delay(2000, ct);
                 }
             }
-
-            // Return the stream as an SSE response . Need this for the browser to know its SSE
-            Response.Headers.Add("Content-Type", "text/event-stream");
 
             //CAlls the SseMachineStatus Method
             await foreach (var item in SseMachineStatus(cancellationToken))
