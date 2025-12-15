@@ -3,22 +3,6 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 
-// Get path ----------------------------------
-function getPythonPath() {
-  const __current_filepath = fileURLToPath(import.meta.url);
-  const base = dirname(__current_filepath);
-
-  const win = base + "/venv/Scripts/python.exe";
-
-  if (fs.existsSync(win)) return win;
-
-  console.error("Could not find venv Python at:", win);
-  process.exit(1);
-}
-
-const python_path = getPythonPath();
-// -------------------------------------------
-
 function pystarter(order_group){
 
   const __current_filepath = fileURLToPath(import.meta.url);
@@ -36,7 +20,7 @@ function pystarter(order_group){
     const python_filepath =  dirname(__current_filepath) + "/python/main.py";
 
     // Runs python
-    const pythonProcess = spawn(python_path, [python_filepath, data, order_group]);
+    const pythonProcess = spawn("python", [python_filepath, data, order_group]);
 
     // Show output
     pythonProcess.stdout.on("data", (data) => {
@@ -64,7 +48,7 @@ const __current_filepath = fileURLToPath(import.meta.url);
 const python_filepath =  dirname(__current_filepath) + "/python/pythonOld/calculate_previous_events.py";
 
 // Runs python
-const pythonProcess = spawn(python_path, [python_filepath]);
+const pythonProcess = spawn("python", [python_filepath]);
 
 // Show output
 pythonProcess.stdout.on("data", (data) => {
