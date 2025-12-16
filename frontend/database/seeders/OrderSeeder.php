@@ -16,7 +16,7 @@ class OrderSeeder extends Seeder
         //
         DB::table('orders')->insert([
             [
-                'beer_type' => '2',
+                'type_id' => '2',
                 'quantity' => '5'
             ],
         ]);

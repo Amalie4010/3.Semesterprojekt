@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\ViewController;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;

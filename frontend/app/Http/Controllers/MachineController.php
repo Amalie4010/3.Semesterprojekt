@@ -35,6 +35,7 @@ class MachineController extends Controller
      */
     public function connectToMachine(Request $request)
     {
+        Log::debug("Here");
         // Validate input
         $request->validate([
             'connectionString' => 'required|string',
@@ -49,10 +50,11 @@ class MachineController extends Controller
             $response = Http::withHeaders(['Content-Type' => 'application/json'])
                 ->withBody(json_encode($connectionString), 'application/json')
                 ->post($apiUrl);
-
+            Log::debug("A" . $respnose);
             // If C# responded with failure
             if ($response->failed()) {
                 return back()->with('error', $response->body());
+                Log::debug("Shit");
             }
 
             // SUCCESS -> redirect back to machine monitor
