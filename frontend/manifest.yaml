@@ -137,7 +137,7 @@ spec:
       containers:
       - name: laravel-frontend
         image: frontend:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         ports:
         - containerPort: 80
         env:
