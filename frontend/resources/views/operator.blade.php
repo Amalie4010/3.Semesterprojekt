@@ -39,30 +39,4 @@
         </div>
     </div>
 </footer>
-
-<script>
-// Live data polling every 2 seconds
-setInterval(fetchLiveData, 2000);
-
-async function fetchLiveData() {
-    try {
-        const res = await fetch('/api/operator/status');
-        if (!res.ok) throw new Error('Network error');
-        const data = await res.json();
-
-        document.getElementById('statusText').innerText = data.status;
-        document.getElementById('producingData').innerText = data.current_item || '—';
-        document.getElementById('totalProduced').innerText = data.total_produced;
-    } catch (err) {
-        console.error('Fetch error:', err);
-    }
-}
-
-document.getElementById('startBtn').addEventListener('click', async () => {
-    await fetch('/api/operator/start', { method: 'POST' });
-});
-document.getElementById('stopBtn').addEventListener('click', async () => {
-    await fetch('/api/operator/stop', { method: 'POST' });
-});
-</script>
 @endsection

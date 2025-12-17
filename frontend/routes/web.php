@@ -6,6 +6,7 @@ use App\Http\Controllers\MachineController;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ViewController;
 
 /* When you call the api from frontend REMEMBER!!!!! to have /api at front of /order.. like this http://localhost:8000/api/order
 Because /api is prefixed in api routes file */
@@ -46,7 +47,7 @@ Route::get('/machine', function () {
 
 Route::get('/operator', function () {
     return view('machine');
-})->name('operator');
+})->name('operator')->middleware('auth');
 
 Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);
 

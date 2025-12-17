@@ -45,7 +45,9 @@ function startSSE(connectionString, boxId) {
     const sseUrl = `http://localhost:5139/api/communication/SSEMachine?connectionString=${encodeURIComponent(connectionString)}`;
     const eventSource = new EventSource(sseUrl);
 
-    const powerMap = { 0: "Off", 1: "On" };
+    const stopMap = { 10: "Empty inventory", 11: "Maintenance needed", 12: "Manual Stop",
+         13: "Motor power loss", 14: "Manual abort"
+    };
     const stateMap = {
         0: "Deactivated", 1: "Clearing", 2: "Stopped", 3: "Starting",
         4: "Idle", 5: "Suspended", 6: "Execute", 7: "Stopping",
@@ -59,15 +61,17 @@ function startSSE(connectionString, boxId) {
             const data = JSON.parse(event.data);
 
             const formatted = {
-                PowerState: powerMap[data.PowerState] ?? "Unknown",
                 StateCurrent: stateMap[data.StateCurrent] ?? "Unknown",
+                BatchId: data.BatchId,
                 CurrentMachSpeed: data.CurrentMachSpeed,
                 ProducedAmount: data.ProducedAmount,
                 Barley: data.Barley,
                 Hops: data.Hops,
                 Malt: data.Malt,
                 Wheat: data.Wheat,
-                Yeast: data.Yeast
+                Yeast: data.Yeast,
+                StopReason: stopMap[data.StopReasonID] ?? "Unknown",
+                MaintenanceCount: data.MaintenanceCount
             };
 
             document.getElementById(`data-${boxId}`).textContent =
@@ -80,7 +84,7 @@ function startSSE(connectionString, boxId) {
 
     eventSource.onerror = () => {
         document.getElementById(`data-${boxId}`).textContent =
-            "❌ SSE connection lost";
+            "SSE connection lost";
     };
 }
 
@@ -158,6 +162,31 @@ function deleteCommand(id) {
         console.error("Delete error:", err);
         alert("Unable to delete command");
     });
+
+    
+
 }
 
+// Live data polling every 2 seconds
+ setInterval(fetchLiveData, 2000);
 
+    async function fetchLiveData() {
+        try {
+            const res = await fetch('/api/operator/status');
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+
+            document.getElementById('statusText').innerText = data.status;
+            document.getElementById('producingData').innerText = data.current_item || '—';
+            document.getElementById('totalProduced').innerText = data.total_produced;
+        } catch (err) {
+            console.error('Fetch error:', err);
+        }
+    }
+
+    document.getElementById('startBtn').addEventListener('click', async () => {
+        await fetch('/api/operator/start', { method: 'POST' });
+    });
+    document.getElementById('stopBtn').addEventListener('click', async () => {
+        await fetch('/api/operator/stop', { method: 'POST' });
+    });
