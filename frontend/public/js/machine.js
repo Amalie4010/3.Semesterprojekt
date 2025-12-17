@@ -40,10 +40,7 @@ function loadMachines() {
         .catch(err => console.error("Failed to load machines:", err));
 }
 
-
-/* ==============================
-   START SSE STREAM FOR MACHINE
-   ============================== */
+   //START SSE STREAM FOR MACHINE
 function startSSE(connectionString, boxId) {
     const sseUrl = `http://localhost:5139/api/communication/SSEMachine?connectionString=${encodeURIComponent(connectionString)}`;
     const eventSource = new EventSource(sseUrl);
