@@ -19,11 +19,11 @@ Route::get('/', function () {
 })->name('index');
 Route::get('/machine', function () {
     return view('machine');
-})->name('machine');
+})->name('machine')->middleware('auth');
 
 Route::get('/operator', function () {
     return view('machine');
-})->name('operator');
+})->name('operator')->middleware('auth');
 
 
 Route::get('/api/order-system/orders', [OrderController::class, 'getOrders']);

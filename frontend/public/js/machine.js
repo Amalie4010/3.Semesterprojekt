@@ -1,6 +1,4 @@
-/* ===============================
-   LOAD MACHINE LIST (AJAX POLLING)
-   =============================== */
+//LOAD MACHINE LIST (AJAX POLLING)
 document.addEventListener("DOMContentLoaded", () => {
     loadMachines();
     setInterval(loadMachines, 2000); // check every 2 seconds
@@ -41,9 +39,7 @@ function loadMachines() {
 }
 
 
-/* ==============================
-   START SSE STREAM FOR MACHINE
-   ============================== */
+// START SSE STREAM FOR MACHINE
 function startSSE(connectionString, boxId) {
     const sseUrl = `http://localhost:5139/api/communication/SSEMachine?connectionString=${encodeURIComponent(connectionString)}`;
     const eventSource = new EventSource(sseUrl);
