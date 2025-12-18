@@ -106,42 +106,16 @@ namespace CommunicationTest
             OkObjectResult? res = (OkObjectResult?)c.SendCommand(cdto);
             Command? co = (Command?)res?.Value;
             Assert.That(co, Is.Not.Null);
-            var res2 = c.GetCommandCurrent().Value;
+            var res2 = c.GetCommandsCurrent().Value;
             Assert.That(res2?[0]?.Id, Is.EqualTo(co.Id));
         }
         [Test]
         public void GetEmptyCurrentCommand()
         {
             p.ps = PowerState.On;
-            Command?[]? res = c.GetCommandCurrent().Value;
+            GetCommandDto?[]? res = c.GetCommandsCurrent().Value;
             Assert.That(res, Is.Not.Null);
             Assert.That(res.Length, Is.EqualTo(0));
-        }
-        [Test]
-        public void GetEmptyProgress()
-        {
-            p.ps = PowerState.On;
-            int[]? res = c.GetCommandProgress().Value;
-            Assert.That(res, Is.Not.Null);
-            Assert.That(res.Length, Is.EqualTo(0));
-        }
-        [Test]
-        public void GetProgress()
-        {
-            p.ps = PowerState.On;
-            PostCommandDto[] cdtos = { new PostCommandDto(BeerTypes.Ale, 1, 1), new PostCommandDto(BeerTypes.Ale, 1, 1), new PostCommandDto(BeerTypes.Ale, 1, 1) };
-            foreach (var dto in cdtos)
-            {
-                c.SendCommand(dto);
-            }
-
-            int[]? res = c.GetCommandProgress().Value;
-            Assert.That(res, Is.Not.Null);
-            Assert.That(res.Length, Is.EqualTo(cdtos.Length));
-            foreach(var i in res)
-            {
-                Assert.That(i, Is.EqualTo(0)); // 0 because, mock prod just fills array with 0
-            }
         }
     }
     public class Prod : IProduction
@@ -173,6 +147,11 @@ namespace CommunicationTest
             
         }
 
+        public IEnumerable<string> GetAllMachines()
+        {
+            throw new NotImplementedException();
+        }
+
         public Command?[] GetCurrentCommands()
         {
             return commands.ToArray();
@@ -186,6 +165,11 @@ namespace CommunicationTest
                 res[i] = 0;
             }
             return res;
+        }
+
+        public Command[] GetQueue()
+        {
+            throw new NotImplementedException();
         }
 
         public PowerState GetState()
