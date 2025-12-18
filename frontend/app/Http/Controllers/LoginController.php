@@ -21,7 +21,7 @@ class LoginController extends Controller
         // "Auth::attempt($credentials)" checks if a user with that email exists and the corresponding hash password matches, laravel automatically compares the entered password with the bcrypt hash (encrypted password), in the table
         if (Auth::attempt($credentials)) { // if it works, sending u to the "dashboard" page, meaning the page only available for the workers
             $request->session()->regenerate(); // Creates a session ID stored in the browser cookie, meaning that when u go into the browser it creates a random session id, is used for safety reasons, such as a person not acting as u and commiting sins, astaghfirullah
-            return redirect()->intended('operator'); // if someone tries to access the "dashboard" page, the laravel middleware, says u have to login, if its a success they can continue to the webpage they wanted
+            return redirect()->intended(route('operator')); // if someone tries to access the "dashboard" page, the laravel middleware, says u have to login, if its a success they can continue to the webpage they wanted
         }
  
         // "return back()", people are sent back to the login page, "withErrors" sends a ErrorMessage
